@@ -1,6 +1,10 @@
 package controller
 
-import "github.com/Anand-S23/OneLiner/internal/storage"
+import (
+	"net/http"
+
+	"github.com/Anand-S23/OneLiner/internal/storage"
+)
 
 type Controller struct {
     store        *storage.DynamoStore
@@ -15,3 +19,8 @@ func NewController(store *storage.DynamoStore, secretKey string, production bool
         JwtSecretKey: secretKey,
     }
 }
+
+func (c *Controller) Ping(w http.ResponseWriter, r *http.Request) error {
+    return WriteJSON(w, http.StatusOK, "Pong")
+}
+
