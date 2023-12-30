@@ -47,6 +47,50 @@ var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
 		},
 }
 
+var postsTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
+		TableName: aws.String("Posts"),
+		AttributeDefinitions: []types.AttributeDefinition {
+            {
+                AttributeName: aws.String("id"),
+                AttributeType: types.ScalarAttributeTypeS,
+            },
+			{
+				AttributeName: aws.String("body"),
+				AttributeType: types.ScalarAttributeTypeS,
+			},
+			{
+				AttributeName: aws.String("user"),
+				AttributeType: types.ScalarAttributeTypeS,
+			},
+            {
+                AttributeName: aws.String("type"),
+				AttributeType: types.ScalarAttributeTypeS,
+            },
+            {
+                AttributeName: aws.String("refrence"),
+                AttributeType: types.ScalarAttributeTypeS,
+            },
+            {
+                AttributeName: aws.String("likes"),
+                AttributeType: types.ScalarAttributeTypeN,
+            },
+            {
+                AttributeName: aws.String("uses"),
+                AttributeType: types.ScalarAttributeTypeN,
+            },
+		},
+		KeySchema: []types.KeySchemaElement {
+			{
+				AttributeName: aws.String("id"),
+				KeyType: types.KeyTypeHash,
+			},
+		},
+		ProvisionedThroughput: &types.ProvisionedThroughput {
+			ReadCapacityUnits:  aws.Int64(10),
+			WriteCapacityUnits: aws.Int64(10),
+		},
+}
+
 func InitDB(timeout time.Duration) *dynamodb.Client {
     ctx, cancel := context.WithTimeout(context.Background(), timeout)
     defer cancel()
@@ -61,29 +105,31 @@ func InitDB(timeout time.Duration) *dynamodb.Client {
         log.Panic(err);
     }
 
+    createDynamoDBTable(db, usersTableSchema, timeout)
+    createDynamoDBTable(db, postsTableSchema, timeout)
     return db
 }
 
-func createDynamoDBTable(db *dynamodb.Client, tableName string, input *dynamodb.CreateTableInput, timeout time.Duration) {
+func createDynamoDBTable(db *dynamodb.Client, input *dynamodb.CreateTableInput, timeout time.Duration) {
 	var tableDesc *types.TableDescription
     ctx, cancel := context.WithTimeout(context.Background(), timeout)
     defer cancel()
 
 	table, err := db.CreateTable(ctx, input)
 	if err != nil {
-		log.Fatalf("Failed to create table %v with error: %v\n", tableName, err)
+		log.Fatalf("Failed to create table %v with error: %v\n", input.TableName, err)
 	} 
 
     waiter := dynamodb.NewTableExistsWaiter(db)
 
     err = waiter.Wait(ctx, &dynamodb.DescribeTableInput { 
-        TableName: aws.String(tableName),
+        TableName: aws.String(*input.TableName),
     }, 5 * time.Minute)
     if err != nil {
-        log.Printf("Failed to wait on create table %v with error: %v\n", tableName, err)
+        log.Printf("Failed to wait on create table %v with error: %v\n", input.TableName, err)
     }
 
     tableDesc = table.TableDescription
-    log.Printf("%v table created sucessfully: %v\n", tableName, tableDesc)
+    log.Printf("%v table created sucessfully: %v\n", input.TableName, tableDesc)
 }
 
