@@ -12,7 +12,7 @@ import (
 )
 
 var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String("Users"),
+		TableName: aws.String("OLUsers"),
 		AttributeDefinitions: []types.AttributeDefinition {
 			{
 				AttributeName: aws.String("username"),
@@ -20,14 +20,6 @@ var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
 			},
 			{
 				AttributeName: aws.String("email"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-			{
-				AttributeName: aws.String("password"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-			{
-				AttributeName: aws.String("pfp"),
 				AttributeType: types.ScalarAttributeTypeS,
 			},
 		},
@@ -48,35 +40,11 @@ var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
 }
 
 var postsTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String("Posts"),
+		TableName: aws.String("OLPosts"),
 		AttributeDefinitions: []types.AttributeDefinition {
             {
                 AttributeName: aws.String("id"),
                 AttributeType: types.ScalarAttributeTypeS,
-            },
-			{
-				AttributeName: aws.String("body"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-			{
-				AttributeName: aws.String("user"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-            {
-                AttributeName: aws.String("type"),
-				AttributeType: types.ScalarAttributeTypeS,
-            },
-            {
-                AttributeName: aws.String("refrence"),
-                AttributeType: types.ScalarAttributeTypeS,
-            },
-            {
-                AttributeName: aws.String("likes"),
-                AttributeType: types.ScalarAttributeTypeN,
-            },
-            {
-                AttributeName: aws.String("uses"),
-                AttributeType: types.ScalarAttributeTypeN,
             },
 		},
 		KeySchema: []types.KeySchemaElement {
@@ -105,31 +73,55 @@ func InitDB(timeout time.Duration) *dynamodb.Client {
         log.Panic(err);
     }
 
-    createDynamoDBTable(db, usersTableSchema, timeout)
-    createDynamoDBTable(db, postsTableSchema, timeout)
+    result, err := db.ListTables(ctx, &dynamodb.ListTablesInput{})
+    if err != nil {
+        log.Fatalf("Could not get tables: %s", err)
+    }
+    tables := result.TableNames
+    
+    if tableExists(tables, *usersTableSchema.TableName) {
+        err = createDynamoDBTable(db, usersTableSchema, timeout)
+        if err != nil {
+            log.Fatalf("Could not create Users table: %s", err)
+        }
+    }
+
+    if tableExists(tables, *postsTableSchema.TableName) {
+        createDynamoDBTable(db, postsTableSchema, timeout)
+        if err != nil {
+            log.Fatalf("Could not create Posts table: %s", err)
+        }
+    }
+
     return db
 }
 
-func createDynamoDBTable(db *dynamodb.Client, input *dynamodb.CreateTableInput, timeout time.Duration) {
-	var tableDesc *types.TableDescription
+func createDynamoDBTable(db *dynamodb.Client, input *dynamodb.CreateTableInput, timeout time.Duration) error {
     ctx, cancel := context.WithTimeout(context.Background(), timeout)
     defer cancel()
 
 	table, err := db.CreateTable(ctx, input)
 	if err != nil {
-		log.Fatalf("Failed to create table %v with error: %v\n", input.TableName, err)
+        return err
 	} 
 
     waiter := dynamodb.NewTableExistsWaiter(db)
-
-    err = waiter.Wait(ctx, &dynamodb.DescribeTableInput { 
-        TableName: aws.String(*input.TableName),
-    }, 5 * time.Minute)
+    err = waiter.Wait(ctx, &dynamodb.DescribeTableInput { TableName: aws.String(*input.TableName) }, 5 * time.Minute)
     if err != nil {
-        log.Printf("Failed to wait on create table %v with error: %v\n", input.TableName, err)
+        return err
     }
 
-    tableDesc = table.TableDescription
-    log.Printf("%v table created sucessfully: %v\n", input.TableName, tableDesc)
+    log.Printf("%s table created sucessfully, table id: %s\n", *input.TableName, *table.TableDescription.TableId)
+    return nil
+}
+
+func tableExists(tables []string, tableName string) bool {
+    for _, t := range tables {
+        if t == tableName {
+            return true
+        }
+    }
+
+    return false
 }
 
