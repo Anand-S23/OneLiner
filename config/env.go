@@ -7,15 +7,18 @@ import (
 
 type EnvVars struct {
     PRODUCTION bool
+    JWT_SECRET string
     PORT       string
 }
 
 func LoadEnv() (*EnvVars, error) {
     envMode := GetEnv("MODE", "development")
+    secret := GetEnvOrPanic("JWT_SECRET", "Must provide JWT_SECRET variable in .env file")
     port := GetEnv("PORT", "8080")
 
     return &EnvVars {
         PRODUCTION: (envMode == "production"),
+        JWT_SECRET: secret,
         PORT: port,
     }, nil
 }

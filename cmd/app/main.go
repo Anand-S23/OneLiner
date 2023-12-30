@@ -19,7 +19,7 @@ func main() {
 
     db := database.InitDB(10 * time.Second)
     dynamoStore := storage.NewDynamoStore(db)
-    controller := controller.NewController(dynamoStore, "", env.PRODUCTION)
+    controller := controller.NewController(dynamoStore, env.JWT_SECRET, env.PRODUCTION)
     router := router.NewRouter(controller)
 
     log.Println("OneLiner running on port: ", env.PORT);
