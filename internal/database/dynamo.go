@@ -79,18 +79,24 @@ func InitDB(timeout time.Duration) *dynamodb.Client {
     }
     tables := result.TableNames
     
-    if tableExists(tables, *usersTableSchema.TableName) {
+    if !tableExists(tables, *usersTableSchema.TableName) {
         err = createDynamoDBTable(db, usersTableSchema, timeout)
         if err != nil {
-            log.Fatalf("Could not create Users table: %s", err)
+            log.Fatalf("Could not create Users table: %s\n", err)
         }
+        log.Println("Users table created sucessfully")
+    } else {
+        log.Println("Skipping creation of Users table: already exists")
     }
 
-    if tableExists(tables, *postsTableSchema.TableName) {
+    if !tableExists(tables, *postsTableSchema.TableName) {
         createDynamoDBTable(db, postsTableSchema, timeout)
         if err != nil {
-            log.Fatalf("Could not create Posts table: %s", err)
+            log.Fatalf("Could not create Posts table: %s\n", err)
         }
+        log.Println("Posts table created sucessfully")
+    } else {
+        log.Println("Skipping creation of Posts table: already exists")
     }
 
     return db
@@ -100,18 +106,11 @@ func createDynamoDBTable(db *dynamodb.Client, input *dynamodb.CreateTableInput, 
     ctx, cancel := context.WithTimeout(context.Background(), timeout)
     defer cancel()
 
-	table, err := db.CreateTable(ctx, input)
+	_, err := db.CreateTable(ctx, input)
 	if err != nil {
         return err
 	} 
 
-    waiter := dynamodb.NewTableExistsWaiter(db)
-    err = waiter.Wait(ctx, &dynamodb.DescribeTableInput { TableName: aws.String(*input.TableName) }, 5 * time.Minute)
-    if err != nil {
-        return err
-    }
-
-    log.Printf("%s table created sucessfully, table id: %s\n", *input.TableName, *table.TableDescription.TableId)
     return nil
 }
 
