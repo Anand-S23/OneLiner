@@ -1,7 +1,16 @@
 package main
 
-import "log"
+import (
+	"log"
+
+	"github.com/Anand-S23/OneLiner/config"
+)
 
 func main() {
-    log.Println("Hello world");
+    env, err := config.LoadEnv()
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    log.Println("OneLiner running on port: ", env.PORT);
 }
