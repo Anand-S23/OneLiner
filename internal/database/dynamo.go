@@ -11,8 +11,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+var UsersTableName string = "OLUsers"
+var PostsTableName string = "OLPosts"
+
 var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String("OLUsers"),
+		TableName: aws.String(UsersTableName),
 		AttributeDefinitions: []types.AttributeDefinition {
 			{
 				AttributeName: aws.String("username"),
@@ -40,7 +43,7 @@ var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
 }
 
 var postsTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String("OLPosts"),
+		TableName: aws.String(PostsTableName),
 		AttributeDefinitions: []types.AttributeDefinition {
             {
                 AttributeName: aws.String("id"),
