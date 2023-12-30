@@ -6,7 +6,7 @@ type DynamoStore struct {
 	db *dynamodb.Client
 }
 
-func NewMongoStore(db *dynamodb.Client) *DynamoStore {
+func NewDynamoStore(db *dynamodb.Client) *DynamoStore {
     return &DynamoStore{db: db}
 }
 
