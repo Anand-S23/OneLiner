@@ -11,8 +11,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-var UsersTableName string = "OLUsers"
-var PostsTableName string = "OLPosts"
+var UsersTableName string = "SnippetUsers"
+var PostsTableName string = "SnippetPosts"
 
 var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
 		TableName: aws.String(UsersTableName),
