@@ -1,6 +1,6 @@
-# One Liner
+# Snippet
 
-Twitter like collerbative social media platform for writers
+Gist Clone: Platform to share code snippets easily with others. 
 
 ## Table of Contents 
 
@@ -12,7 +12,7 @@ Twitter like collerbative social media platform for writers
 <a id="quick-start"></a>
 ## Quick Start
 
-One Liner uses docker for easy development, docker and docker-compose are pre-requistes. Follow the following steps once the repository is cloned locally:
+Snippet uses docker for easy development, docker and docker-compose are pre-requistes. Follow the following steps once the repository is cloned locally:
 
 1. Create a `.env` file using example.env as an base
 2. Run `docker-compose up --build`
