@@ -11,44 +11,15 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-var UsersTableName string = "OLUsers"
-var PostsTableName string = "OLPosts"
+var SnippetTableName string = "Snippet"
 
-var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String(UsersTableName),
+var snippetTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
+		TableName: aws.String(SnippetTableName),
 		AttributeDefinitions: []types.AttributeDefinition {
 			{
-				AttributeName: aws.String("username"),
+				AttributeName: aws.String("id"),
 				AttributeType: types.ScalarAttributeTypeS,
 			},
-			{
-				AttributeName: aws.String("email"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-		},
-		KeySchema: []types.KeySchemaElement {
-			{
-				AttributeName: aws.String("username"),
-				KeyType: types.KeyTypeHash,
-			},
-			{
-				AttributeName: aws.String("email"),
-				KeyType: types.KeyTypeRange,
-			},
-		},
-		ProvisionedThroughput: &types.ProvisionedThroughput {
-			ReadCapacityUnits:  aws.Int64(10),
-			WriteCapacityUnits: aws.Int64(10),
-		},
-}
-
-var postsTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String(PostsTableName),
-		AttributeDefinitions: []types.AttributeDefinition {
-            {
-                AttributeName: aws.String("id"),
-                AttributeType: types.ScalarAttributeTypeS,
-            },
 		},
 		KeySchema: []types.KeySchemaElement {
 			{
@@ -82,24 +53,14 @@ func InitDB(timeout time.Duration) *dynamodb.Client {
     }
     tables := result.TableNames
     
-    if !tableExists(tables, *usersTableSchema.TableName) {
-        err = createDynamoDBTable(db, usersTableSchema, timeout)
+    if !tableExists(tables, *snippetTableSchema.TableName) {
+        err = createDynamoDBTable(db, snippetTableSchema, timeout)
         if err != nil {
-            log.Fatalf("Could not create Users table: %s\n", err)
+            log.Fatalf("Could not create table: %s\n", err)
         }
-        log.Println("Users table created sucessfully")
+        log.Println("Table created sucessfully")
     } else {
-        log.Println("Skipping creation of Users table: already exists")
-    }
-
-    if !tableExists(tables, *postsTableSchema.TableName) {
-        createDynamoDBTable(db, postsTableSchema, timeout)
-        if err != nil {
-            log.Fatalf("Could not create Posts table: %s\n", err)
-        }
-        log.Println("Posts table created sucessfully")
-    } else {
-        log.Println("Skipping creation of Posts table: already exists")
+        log.Println("Skipping creation of table: already exists")
     }
 
     return db
