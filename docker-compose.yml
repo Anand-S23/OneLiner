@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   app:
-    container_name: one_liner
+    container_name: snippet
     build:
       context: .
       dockerfile: Dockerfile
