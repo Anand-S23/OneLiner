@@ -14,23 +14,23 @@ import (
 var SnippetTableName string = "Snippet"
 
 var snippetTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String(SnippetTableName),
-		AttributeDefinitions: []types.AttributeDefinition {
-			{
-				AttributeName: aws.String("id"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-		},
-		KeySchema: []types.KeySchemaElement {
-			{
-				AttributeName: aws.String("id"),
-				KeyType: types.KeyTypeHash,
-			},
-		},
-		ProvisionedThroughput: &types.ProvisionedThroughput {
-			ReadCapacityUnits:  aws.Int64(10),
-			WriteCapacityUnits: aws.Int64(10),
-		},
+    TableName: aws.String(SnippetTableName),
+    AttributeDefinitions: []types.AttributeDefinition {
+        {
+            AttributeName: aws.String("id"),
+            AttributeType: types.ScalarAttributeTypeS,
+        },
+    },
+    KeySchema: []types.KeySchemaElement {
+        {
+            AttributeName: aws.String("id"),
+            KeyType: types.KeyTypeHash,
+        },
+    },
+    ProvisionedThroughput: &types.ProvisionedThroughput {
+        ReadCapacityUnits:  aws.Int64(10),
+        WriteCapacityUnits: aws.Int64(10),
+    },
 }
 
 func InitDB(timeout time.Duration) *dynamodb.Client {
