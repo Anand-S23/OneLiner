@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+
 var SnippetTableName string = "Snippet"
 
 var snippetTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
