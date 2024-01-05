@@ -3,7 +3,7 @@ package router
 import (
 	"net/http"
 
-	"github.com/Anand-S23/OneLiner/internal/controller"
+	"github.com/Anand-S23/Snippet/internal/controller"
 	"github.com/gorilla/mux"
 )
 

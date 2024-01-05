@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/Anand-S23/OneLiner/internal/storage"
+	"github.com/Anand-S23/Snippet/internal/storage"
 )
 
 type Controller struct {

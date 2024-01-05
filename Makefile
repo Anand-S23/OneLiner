@@ -1,8 +1,8 @@
 build:
-	@go build -o bin/one_liner cmd/app/main.go
+	@go build -o bin/snippet cmd/app/main.go
 
 run: build
-	@./bin/one_liner
+	@./bin/snippet
 
 test:
 	@go test -v ./...

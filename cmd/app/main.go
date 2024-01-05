@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Anand-S23/OneLiner/config"
-	"github.com/Anand-S23/OneLiner/internal/controller"
-	"github.com/Anand-S23/OneLiner/internal/database"
-	"github.com/Anand-S23/OneLiner/internal/router"
-	"github.com/Anand-S23/OneLiner/internal/storage"
+	"github.com/Anand-S23/Snippet/config"
+	"github.com/Anand-S23/Snippet/internal/controller"
+	"github.com/Anand-S23/Snippet/internal/database"
+	"github.com/Anand-S23/Snippet/internal/router"
+	"github.com/Anand-S23/Snippet/internal/storage"
 	"github.com/gorilla/handlers"
 )
 
@@ -20,7 +20,7 @@ func main() {
     }
 
     db := database.InitDB(10 * time.Second)
-    dynamoStore := storage.NewDynamoStore(db)
+    dynamoStore := storage.NewDynamoStore(db, database.SnippetTableName)
     controller := controller.NewController(dynamoStore, env.JWT_SECRET, env.PRODUCTION)
     router := router.NewRouter(controller)
 

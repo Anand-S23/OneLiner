@@ -11,55 +11,27 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-var UsersTableName string = "SnippetUsers"
-var PostsTableName string = "SnippetPosts"
 
-var usersTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String(UsersTableName),
-		AttributeDefinitions: []types.AttributeDefinition {
-			{
-				AttributeName: aws.String("username"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-			{
-				AttributeName: aws.String("email"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-		},
-		KeySchema: []types.KeySchemaElement {
-			{
-				AttributeName: aws.String("username"),
-				KeyType: types.KeyTypeHash,
-			},
-			{
-				AttributeName: aws.String("email"),
-				KeyType: types.KeyTypeRange,
-			},
-		},
-		ProvisionedThroughput: &types.ProvisionedThroughput {
-			ReadCapacityUnits:  aws.Int64(10),
-			WriteCapacityUnits: aws.Int64(10),
-		},
-}
+var SnippetTableName string = "Snippet"
 
-var postsTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
-		TableName: aws.String(PostsTableName),
-		AttributeDefinitions: []types.AttributeDefinition {
-            {
-                AttributeName: aws.String("id"),
-                AttributeType: types.ScalarAttributeTypeS,
-            },
-		},
-		KeySchema: []types.KeySchemaElement {
-			{
-				AttributeName: aws.String("id"),
-				KeyType: types.KeyTypeHash,
-			},
-		},
-		ProvisionedThroughput: &types.ProvisionedThroughput {
-			ReadCapacityUnits:  aws.Int64(10),
-			WriteCapacityUnits: aws.Int64(10),
-		},
+var snippetTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
+    TableName: aws.String(SnippetTableName),
+    AttributeDefinitions: []types.AttributeDefinition {
+        {
+            AttributeName: aws.String("id"),
+            AttributeType: types.ScalarAttributeTypeS,
+        },
+    },
+    KeySchema: []types.KeySchemaElement {
+        {
+            AttributeName: aws.String("id"),
+            KeyType: types.KeyTypeHash,
+        },
+    },
+    ProvisionedThroughput: &types.ProvisionedThroughput {
+        ReadCapacityUnits:  aws.Int64(10),
+        WriteCapacityUnits: aws.Int64(10),
+    },
 }
 
 func InitDB(timeout time.Duration) *dynamodb.Client {
@@ -82,24 +54,14 @@ func InitDB(timeout time.Duration) *dynamodb.Client {
     }
     tables := result.TableNames
     
-    if !tableExists(tables, *usersTableSchema.TableName) {
-        err = createDynamoDBTable(db, usersTableSchema, timeout)
+    if !tableExists(tables, *snippetTableSchema.TableName) {
+        err = createDynamoDBTable(db, snippetTableSchema, timeout)
         if err != nil {
-            log.Fatalf("Could not create Users table: %s\n", err)
+            log.Fatalf("Could not create table: %s\n", err)
         }
-        log.Println("Users table created sucessfully")
+        log.Println("Table created sucessfully")
     } else {
-        log.Println("Skipping creation of Users table: already exists")
-    }
-
-    if !tableExists(tables, *postsTableSchema.TableName) {
-        createDynamoDBTable(db, postsTableSchema, timeout)
-        if err != nil {
-            log.Fatalf("Could not create Posts table: %s\n", err)
-        }
-        log.Println("Posts table created sucessfully")
-    } else {
-        log.Println("Skipping creation of Posts table: already exists")
+        log.Println("Skipping creation of table: already exists")
     }
 
     return db

@@ -1,4 +1,4 @@
-module github.com/Anand-S23/OneLiner
+module github.com/Anand-S23/Snippet
 
 go 1.21.0
 

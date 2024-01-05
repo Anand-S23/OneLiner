@@ -9,4 +9,4 @@ COPY . .
 RUN make build
 
 EXPOSE 5050
-CMD ["./bin/one_liner"]
+CMD ["./bin/snippet"]
