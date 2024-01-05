@@ -23,7 +23,7 @@ type userRecordFields struct {
 
 const userRecordName = "user"
 
-func newUserRecord(user User) userRecord {
+func NewUserRecord(user User) userRecord {
 	var ur userRecord
 	ur.ID = newUserRecordHashKey(user.ID)
 	ur.Range = newUserRecordRangeKey()
