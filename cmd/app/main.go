@@ -20,7 +20,7 @@ func main() {
     }
 
     db := database.InitDB(10 * time.Second)
-    dynamoStore := storage.NewDynamoStore(db)
+    dynamoStore := storage.NewDynamoStore(db, database.SnippetTableName)
     controller := controller.NewController(dynamoStore, env.JWT_SECRET, env.PRODUCTION)
     router := router.NewRouter(controller)
 
