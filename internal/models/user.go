@@ -14,3 +14,12 @@ type UserDetail struct {
     Posts []Post
 }
 
+func NewUserFromRecord(ur UserRecord) *User {
+    return &User {
+        ID: ur.Email,
+        Username: ur.Username,
+        Password: ur.Password,
+        CreatedAt: ur.CreatedAt,
+    }
+}
+

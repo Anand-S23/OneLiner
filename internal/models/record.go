@@ -2,19 +2,19 @@ package models
 
 import "time"
 
-type record struct {
+type Record struct {
 	ID         string `json:"id"`
 	Range      string `json:"rng"`
 	RecordType string `json:"typ"`
 	Version    int    `json:"v"`
 }
 
-type userRecord struct {
-	record
-	userRecordFields
+type UserRecord struct {
+	Record
+	UserRecordFields
 }
 
-type userRecordFields struct {
+type UserRecordFields struct {
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
 	Password  string    `json:"password"`
@@ -23,10 +23,10 @@ type userRecordFields struct {
 
 const userRecordName = "user"
 
-func NewUserRecord(user User) userRecord {
-	var ur userRecord
-	ur.ID = newUserRecordHashKey(user.ID)
-	ur.Range = newUserRecordRangeKey()
+func NewUserRecord(user User) UserRecord {
+	var ur UserRecord
+	ur.ID = NewUserRecordHashKey(user.ID)
+	ur.Range = NewUserRecordRangeKey()
 	ur.Email = user.ID
 	ur.Username = user.Username
 	ur.Password = user.Password
@@ -35,11 +35,11 @@ func NewUserRecord(user User) userRecord {
 	return ur
 }
 
-func newUserRecordHashKey(email string) string {
+func NewUserRecordHashKey(email string) string {
 	return userRecordName + "/" + email
 }
 
-func newUserRecordRangeKey() string {
+func NewUserRecordRangeKey() string {
 	return userRecordName
 }
 
