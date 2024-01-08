@@ -3,7 +3,6 @@ package validators
 import (
 	"errors"
 	"net/mail"
-	"regexp"
 
 	"github.com/Anand-S23/Snippet/internal/models"
 	"github.com/Anand-S23/Snippet/internal/storage"
@@ -11,14 +10,9 @@ import (
 
 
 func AuthValidator(userData models.RegisterDto, store *storage.DynamoStore) map[string]string {
-    errs := make(map[string]string, 3)
+    errs := make(map[string]string, 2)
 
-    err := validateUsername(userData.Username, store)
-    if err != nil {
-        errs["username"] = err.Error()
-    }
-
-    err = validateEmail(userData.Email, store)
+    err := validateEmail(userData.Email, store)
     if err != nil {
         errs["email"] = err.Error()
     }
@@ -31,20 +25,6 @@ func AuthValidator(userData models.RegisterDto, store *storage.DynamoStore) map[
     return errs
 }
 
-func validateUsername(username string, store *storage.DynamoStore) error {
-    if len(username) < 5 || len(username) > 25 {
-        return errors.New("Username must be between 5-15 characters long")
-    }
-
-    if !regexp.MustCompile("^[a-zA-Z0-9_\\-.]+$").MatchString(username) {
-        return errors.New("Username can only contain letters, numbers, hyphens(-), underscores(_) and periods(.)")
-    }
-
-    // TODO: Unique Username
-
-    return nil
-}
-
 func validateEmail(email string, store *storage.DynamoStore) error {
     _, err := mail.ParseAddress(email)
     if err != nil {
@@ -55,7 +35,10 @@ func validateEmail(email string, store *storage.DynamoStore) error {
         return errors.New("Email must be less than 64 characters")
     }
 
-    // TODO: Unique Email
+    user, _ := store.GetUser(email)
+    if user != nil {
+        return errors.New("User already exsits with that email")
+    }
 
     return nil
 }

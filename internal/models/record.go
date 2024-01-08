@@ -18,8 +18,7 @@ type UserRecord struct {
 
 type UserRecordFields struct {
 	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	Password  string    `json:"password"`
+	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
@@ -30,7 +29,6 @@ func NewUserRecord(user User) UserRecord {
 	ur.ID = NewUserRecordHashKey(user.ID)
 	ur.Range = NewUserRecordRangeKey()
 	ur.Email = user.ID
-	ur.Username = user.Username
 	ur.Password = user.Password
 	ur.CreatedAt = user.CreatedAt
 
