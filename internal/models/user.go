@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
     ID        string // ID is an email address
@@ -12,6 +14,16 @@ type User struct {
 type UserDetail struct {
     User
     Posts []Post
+}
+
+func NewUser(userData RegisterDto) User {
+    now, _ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+    return User {
+        ID: userData.Email,
+        Username: userData.Username,
+        Password: userData.Password,
+        CreatedAt: now,
+    }
 }
 
 func NewUserFromRecord(ur UserRecord) *User {
