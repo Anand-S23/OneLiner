@@ -11,6 +11,8 @@ func NewRouter(c *controller.Controller) *mux.Router {
     router := mux.NewRouter()
 	router.HandleFunc("/ping", HandleFunc(c.Ping))
 
+    router.HandleFunc("/register", HandleFunc(c.SignUp)).Methods("POST")
+
     return router
 }
 

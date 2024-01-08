@@ -59,6 +59,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) error {
     err = c.store.PutUser(user)
     if err != nil {
         log.Println("Error storing the password in the database")
+        log.Println(err)
         return InternalServerError(w)
     }
 

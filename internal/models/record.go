@@ -5,10 +5,10 @@ import (
 )
 
 type Record struct {
-	ID         string `json:"id"`
-	Range      string `json:"rng"`
-	RecordType string `json:"typ"`
-	Version    int    `json:"v"`
+	ID         string `dynamodbav:"id" json:"id"`
+	Range      string `dynamodbav:"rng" json:"rng"`
+	RecordType string `dynamodbav:"typ" json:"typ"`
+	Version    int    `dynamodbav:"v" json:"v"`
 }
 
 type UserRecord struct {
