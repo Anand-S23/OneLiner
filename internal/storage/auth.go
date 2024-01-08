@@ -51,8 +51,11 @@ func (store *DynamoStore) GetUser(id string) (*models.User, error) {
 
     var ur models.UserRecord
     err = attributevalue.UnmarshalMap(out.Item, &ur)
-    user := models.NewUserFromRecord(ur)
+    if err != nil {
+        return nil, err
+    }
 
+    user := models.NewUserFromRecord(ur)
     return user, nil
 }
 
