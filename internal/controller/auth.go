@@ -82,3 +82,46 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) error {
     return WriteJSON(w, http.StatusOK, successMsg)
 }
 
+func (c *Controller) Login(w http.ResponseWriter, r *http.Request) error {
+    var loginData models.LoginDto
+    err := json.NewDecoder(r.Body).Decode(&loginData)
+    if err != nil {
+        errMsg := map[string]string {
+            "error": "Could not parse login data",
+        }
+        return WriteJSON(w, http.StatusBadRequest, errMsg)
+    }
+
+    user := c.store.GetUser(models.NewUserRecordHashKey(loginData.Email))
+    if user == nil || user.ID == ""{
+        errMsg := map[string]string {
+            "error": "Incorrect email or password, please try again",
+        }
+        return WriteJSON(w, http.StatusBadRequest, errMsg)
+    }
+
+    err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginData.Password))
+	if err != nil {
+        errMsg := map[string]string {
+            "error": "Incorrect email or password, please try again",
+        }
+        return WriteJSON(w, http.StatusBadRequest, errMsg)
+	}
+
+    expDuration := time.Hour * 24
+    token, err := createToken(c.JwtSecretKey, user.ID, expDuration)
+    if err != nil {
+        log.Println("Error creating token")
+        return InternalServerError(w)
+    }
+
+    cookie := createJWTCookie(token, expDuration, c.production)
+    http.SetCookie(w, &cookie)
+
+    successMsg := map[string]string {
+        "message": "User logged in successfully",
+    }
+    log.Println("User successfully logged in")
+    return WriteJSON(w, http.StatusOK, successMsg)
+}
+

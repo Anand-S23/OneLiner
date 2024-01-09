@@ -12,6 +12,7 @@ func NewRouter(c *controller.Controller) *mux.Router {
 	router.HandleFunc("/ping", HandleFunc(c.Ping))
 
     router.HandleFunc("/register", HandleFunc(c.SignUp)).Methods("POST")
+    router.HandleFunc("/login", HandleFunc(c.Login)).Methods("POST")
 
     return router
 }

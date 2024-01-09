@@ -5,3 +5,9 @@ type RegisterDto struct {
     Password string
     Confirm  string
 }
+
+type LoginDto struct {
+    Email    string
+    Password string
+}
+
