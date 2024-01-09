@@ -1,45 +1,45 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
-type record struct {
-	ID         string `json:"id"`
-	Range      string `json:"rng"`
-	RecordType string `json:"typ"`
-	Version    int    `json:"v"`
+type Record struct {
+	ID         string `dynamodbav:"id" json:"id"`
+	Range      string `dynamodbav:"rng" json:"rng"`
+	RecordType string `dynamodbav:"typ" json:"typ"`
+	Version    int    `dynamodbav:"v" json:"v"`
 }
 
-type userRecord struct {
-	record
-	userRecordFields
+type UserRecord struct {
+	Record
+	UserRecordFields
 }
 
-type userRecordFields struct {
+type UserRecordFields struct {
 	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	Password  string    `json:"password"`
+	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
 const userRecordName = "user"
 
-func newUserRecord(user User) userRecord {
-	var ur userRecord
-	ur.ID = newUserRecordHashKey(user.ID)
-	ur.Range = newUserRecordRangeKey()
+func NewUserRecord(user User) UserRecord {
+	var ur UserRecord
+	ur.ID = NewUserRecordHashKey(user.ID)
+	ur.Range = NewUserRecordRangeKey()
 	ur.Email = user.ID
-	ur.Username = user.Username
 	ur.Password = user.Password
 	ur.CreatedAt = user.CreatedAt
 
 	return ur
 }
 
-func newUserRecordHashKey(email string) string {
+func NewUserRecordHashKey(email string) string {
 	return userRecordName + "/" + email
 }
 
-func newUserRecordRangeKey() string {
+func NewUserRecordRangeKey() string {
 	return userRecordName
 }
 
