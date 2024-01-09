@@ -45,6 +45,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) error {
 
     authErrs := validators.AuthValidator(userData, c.store)
     if len(authErrs) != 0 {
+        log.Println("Failed to create new user, invalid data")
         return WriteJSON(w, http.StatusBadRequest, authErrs)
     }
 
@@ -58,8 +59,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) error {
     user := models.NewUser(userData)
     err = c.store.PutUser(user)
     if err != nil {
-        log.Println("Error storing the password in the database")
-        log.Println(err)
+        log.Printf("Error storing the password in the database, %s", err)
         return InternalServerError(w)
     }
 
@@ -78,6 +78,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) error {
         "userID": user.ID,
     }
 
+    log.Println("User created successfully")
     return WriteJSON(w, http.StatusOK, successMsg)
 }
 

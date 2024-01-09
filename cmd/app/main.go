@@ -31,6 +31,6 @@ func main() {
 		handlers.AllowCredentials(),
 	)
 
-    log.Println("OneLiner running on port: ", env.PORT);
+    log.Println("Snippet running on port: ", env.PORT);
     http.ListenAndServe(":" + env.PORT, corsHandler(router))
 }

@@ -34,32 +34,30 @@ func (store *DynamoStore) PutUser(user models.User) error {
     return nil
 }
 
-func (store *DynamoStore) GetUser(id string) (*models.User, error) {
-    hashKey := models.NewUserRecordHashKey(id)
+func (store *DynamoStore) GetUser(id string) *models.User {
     getItemInput := &dynamodb.GetItemInput {
         TableName: store.tableName,
         ConsistentRead: aws.Bool(true),
         Key: map[string]types.AttributeValue{
-            "id":  &types.AttributeValueMemberS{Value: hashKey},
+            "id":  &types.AttributeValueMemberS{Value: id},
         },
     }
 
     out, err := store.db.GetItem(context.TODO(), getItemInput)
     if err != nil {
-        log.Println("Could not get item for database")
-        log.Println(err)
-        return nil, err
+        log.Printf("Could not get item for database, %s", err)
+        return nil
     }
 
     var ur models.UserRecord
     err = attributevalue.UnmarshalMap(out.Item, &ur)
     if err != nil {
-        log.Println("Could not unmarshal result item")
-        return nil, err
+        log.Printf("Could not unmarshal result item, %s", err)
+        return nil
     }
 
     user := models.NewUserFromRecord(ur)
-    log.Println("Valid User returned from db")
-    return user, nil
+    log.Printf("User returned from db: '%s'", user.ID)
+    return user
 }
 

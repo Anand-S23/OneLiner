@@ -35,8 +35,8 @@ func validateEmail(email string, store *storage.DynamoStore) error {
         return errors.New("Email must be less than 64 characters")
     }
 
-    user, _ := store.GetUser(models.NewUserRecordHashKey(email))
-    if user != nil {
+    user := store.GetUser(models.NewUserRecordHashKey(email))
+    if user.ID != "" {
         return errors.New("User already exsits with that email")
     }
 
