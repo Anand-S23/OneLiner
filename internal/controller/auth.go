@@ -33,6 +33,18 @@ func createJWTCookie(token string, expDuration time.Duration, secure bool) http.
     }
 }
 
+func createExpiredJWTCookie(secure bool) http.Cookie {
+    return http.Cookie {
+        Name: "jwt",
+        Value: "",
+        Expires: time.Unix(0, 0),
+        HttpOnly: true,
+        Secure: secure,
+        Path: "/",
+        SameSite: http.SameSiteStrictMode,
+    }
+}
+
 func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) error {
     var userData models.RegisterDto
     err := json.NewDecoder(r.Body).Decode(&userData)
@@ -123,5 +135,12 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) error {
     }
     log.Println("User successfully logged in")
     return WriteJSON(w, http.StatusOK, successMsg)
+}
+
+func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) error {
+    cookie := createExpiredJWTCookie(c.production)
+    http.SetCookie(w, &cookie)
+    log.Println("User successfully logged out")
+    return WriteJSON(w, http.StatusOK, "")
 }
 
