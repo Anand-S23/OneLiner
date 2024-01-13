@@ -43,10 +43,19 @@ func NewUser(userData RegisterDto) User {
     }
 }
 
+func NewUserFromRecord(ur UserRecord) User {
+    return User {
+        ID: ur.ID,
+        Email: ur.Email,
+        Password: ur.Password,
+        CreatedAt: ur.CreatedAt,
+    }
+}
+
 func NewUserRecord(user User) UserRecord {
     var ur UserRecord
-    ur.PK = NewUserRecordPK(user.ID)
-    ur.SK = NewUserRecordSK(user.Email)
+    ur.PK = NewUserRecordKey(user.ID)
+    ur.SK = NewUserRecordKey(user.Email)
     ur.Type = userRecordType
     ur.ID = user.ID
     ur.Email = user.Email
@@ -56,11 +65,15 @@ func NewUserRecord(user User) UserRecord {
     return ur
 }
 
-func NewUserRecordPK(id string) string {
+func GetKeysFromEmail(email string) (string, string) {
+    id := NewUserUUID(email).String()
+    pk := NewUserRecordKey(id)
+    sk := NewUserRecordKey(email)
+    return pk, sk
+}
+
+func NewUserRecordKey(id string) string {
 	return userRecordType + "/" + id
 }
 
-func NewUserRecordSK(email string) string {
-	return userRecordType + "/" + email
-}
 

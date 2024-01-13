@@ -18,14 +18,22 @@ var snippetTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
     TableName: aws.String(SnippetTableName),
     AttributeDefinitions: []types.AttributeDefinition {
         {
-            AttributeName: aws.String("id"),
+            AttributeName: aws.String("PK"),
+            AttributeType: types.ScalarAttributeTypeS,
+        },
+        {
+            AttributeName: aws.String("SK"),
             AttributeType: types.ScalarAttributeTypeS,
         },
     },
     KeySchema: []types.KeySchemaElement {
         {
-            AttributeName: aws.String("id"),
+            AttributeName: aws.String("PK"),
             KeyType: types.KeyTypeHash,
+        },
+        {
+            AttributeName: aws.String("SK"),
+            KeyType: types.KeyTypeRange,
         },
     },
     ProvisionedThroughput: &types.ProvisionedThroughput {

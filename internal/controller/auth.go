@@ -104,8 +104,8 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) error {
         return WriteJSON(w, http.StatusBadRequest, errMsg)
     }
 
-    user := c.store.GetUser(models.NewUserRecordHashKey(loginData.Email))
-    if user == nil || user.ID == ""{
+    user := c.store.GetUser(models.GetKeysFromEmail(loginData.Email))
+    if user.ID == "" {
         errMsg := map[string]string {
             "error": "Incorrect email or password, please try again",
         }

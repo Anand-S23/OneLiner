@@ -1,8 +1,8 @@
 package models
 
 type Record struct {
-	PK   string `dynamodbav:"pk"  json:"pk"`
-	SK   string `dynamodbav:"sk"  json:"sk"`
-	Type string `dynamodbav:"typ" json:"typ"`
+	PK   string `dynamodbav:"PK"  json:"pk"`
+	SK   string `dynamodbav:"SK"  json:"sk"`
+	Type string `dynamodbav:"Typ" json:"typ"`
 }
 
