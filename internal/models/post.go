@@ -10,3 +10,8 @@ type Post struct {
     CreatedAt time.Time
 }
 
+type PostDto struct {
+    Name    string
+    BodyURI string
+}
+

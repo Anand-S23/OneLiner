@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Anand-S23/Snippet/internal/controller"
+	"github.com/Anand-S23/Snippet/internal/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -14,6 +15,9 @@ func NewRouter(c *controller.Controller) *mux.Router {
     router.HandleFunc("/register", HandleFunc(c.SignUp)).Methods("POST")
     router.HandleFunc("/login", HandleFunc(c.Login)).Methods("POST")
     router.HandleFunc("/logout", HandleFunc(c.Logout)).Methods("POST")
+
+    //TODO: Remove just for testing
+    router.HandleFunc("/protected", middleware.Authentication(HandleFunc(c.Ping), c.JwtSecretKey))
 
     return router
 }

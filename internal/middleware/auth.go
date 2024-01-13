@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/Anand-S23/Snippet/internal/controller"
@@ -14,6 +15,7 @@ func Authentication(next http.Handler, jwtSecretKey string) http.HandlerFunc {
         cookie, err := r.Cookie("jwt")
         if err != nil || cookie.Value == "" {
             controller.WriteJSON(w, http.StatusUnauthorized, errMsg)
+            log.Println("Test to see if it reaches here")
             return
         }
 

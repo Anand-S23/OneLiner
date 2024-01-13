@@ -43,3 +43,36 @@ func NewUserRecordRangeKey() string {
 	return userRecordName
 }
 
+type PostRecord struct {
+	Record
+	PostRecordFields
+}
+
+type PostRecordFields struct {
+    Name      string    `json:"name"`
+    BodyURI   string    `json:"bodyURI"`
+    UserID    string    `json:"userID"`
+    CreatedAt time.Time `json:"createdAt"`
+}
+
+const postRecordName = "post"
+
+func NewPostRecord(post Post) PostRecord {
+	var pr PostRecord
+	pr.ID = NewPostRecordHashKey(post.ID)
+	pr.Range = NewPostRecordRangeKey()
+	pr.Name = post.Name
+	pr.BodyURI = post.BodyURI
+	pr.UserID = post.UserID
+	pr.CreatedAt = post.CreatedAt
+
+	return pr
+}
+
+func NewPostRecordHashKey(id string) string {
+	return postRecordName + "/" + id
+}
+
+func NewPostRecordRangeKey() string {
+	return postRecordName
+}
