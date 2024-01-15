@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-const postRecordName = "post"
+const postRecordType = "post"
 
 type PostRecord struct {
 	Record
@@ -20,5 +20,13 @@ type Post struct {
 type PostDto struct {
     Filename string
     BodyURI  string
+}
+
+func NewPostRecordPK(userID string) string {
+	return NewUserRecordKey(userID)
+}
+
+func NewPostRecordSK(postID string) string {
+	return postRecordType + "/" + postID
 }
 

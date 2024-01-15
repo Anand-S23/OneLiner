@@ -76,4 +76,3 @@ func NewUserRecordKey(id string) string {
 	return userRecordType + "/" + id
 }
 
-
