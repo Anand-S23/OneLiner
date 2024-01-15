@@ -1,8 +1,7 @@
 package storage
 
 import (
-	"time"
-
+	"github.com/Anand-S23/Snippet/internal/blob"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
@@ -10,16 +9,14 @@ import (
 type DynamoStore struct {
 	db        *dynamodb.Client
     tableName *string
-    now       func() time.Time
+    s3        *blob.S3Bucket
 }
 
-func NewDynamoStore(db *dynamodb.Client, tableName string) *DynamoStore {
+func NewDynamoStore(db *dynamodb.Client, tableName string, s3 *blob.S3Bucket) *DynamoStore {
     return &DynamoStore{
         db: db,
         tableName: aws.String(tableName),
-        now: func() time.Time {
-            return time.Now().UTC()
-        },
+        s3: s3,
     }
 }
 

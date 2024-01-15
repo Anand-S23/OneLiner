@@ -18,7 +18,7 @@ type S3Bucket struct {
     Downloader *manager.Downloader
 }
 
-func InitBlob(bucketName string, timeout time.Duration) S3Bucket {
+func InitBlob(bucketName string, timeout time.Duration) *S3Bucket {
     ctx, cancel := context.WithTimeout(context.Background(), timeout)
     defer cancel()
 
@@ -34,7 +34,7 @@ func InitBlob(bucketName string, timeout time.Duration) S3Bucket {
 
     createS3Bucket(client, bucketName, timeout)
 
-    return S3Bucket {
+    return &S3Bucket {
         BucketName: aws.String(bucketName),
         Client: client,
         Uploader: manager.NewUploader(client),
