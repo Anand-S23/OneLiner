@@ -7,12 +7,12 @@ import (
 )
 
 type Controller struct {
-    store        *storage.DynamoStore
+    store        *storage.SnippetStore
     production   bool
     JwtSecretKey string
 }
 
-func NewController(store *storage.DynamoStore, secretKey string, production bool) *Controller {
+func NewController(store *storage.SnippetStore, secretKey string, production bool) *Controller {
     return &Controller {
         store: store,
         production: production,

@@ -23,8 +23,8 @@ func main() {
     timeout := 10 * time.Second
     db := database.InitDB(timeout)
     s3 := blob.InitBlob(env.S3_BUCKET, timeout)
-    dynamoStore := storage.NewDynamoStore(db, database.SnippetTableName, s3)
-    controller := controller.NewController(dynamoStore, env.JWT_SECRET, env.PRODUCTION)
+    store := storage.NewSnippetStore(db, database.SnippetTableName, s3)
+    controller := controller.NewController(store, env.JWT_SECRET, env.PRODUCTION)
     router := router.NewRouter(controller)
 
 	corsHandler := handlers.CORS(

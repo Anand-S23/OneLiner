@@ -6,14 +6,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
-type DynamoStore struct {
+type SnippetStore struct {
 	db        *dynamodb.Client
     tableName *string
     s3        *blob.S3Bucket
 }
 
-func NewDynamoStore(db *dynamodb.Client, tableName string, s3 *blob.S3Bucket) *DynamoStore {
-    return &DynamoStore{
+func NewSnippetStore(db *dynamodb.Client, tableName string, s3 *blob.S3Bucket) *SnippetStore {
+    return &SnippetStore{
         db: db,
         tableName: aws.String(tableName),
         s3: s3,
