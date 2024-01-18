@@ -52,6 +52,8 @@ func createS3Bucket(client *s3.Client, bucketName string, timeout time.Duration)
 	}
 
     if (bucketExists(buckets, bucketName)) {
+        log.Println("Skipping creation of bucket: already exists")
+    } else {
         _, err = client.CreateBucket(ctx, &s3.CreateBucketInput {
             Bucket: aws.String(bucketName),
         })
@@ -59,13 +61,12 @@ func createS3Bucket(client *s3.Client, bucketName string, timeout time.Duration)
             log.Fatalf("Could not create bucket: %s\n", err)
         }
         log.Println("Bucket created sucessfully")
-    } else {
-        log.Println("Skipping creation of bucket: already exists")
     }
 }
 
 func bucketExists(buckets *s3.ListBucketsOutput, bucketName string) bool {
     for _, b := range buckets.Buckets {
+        log.Println(*b.Name)
         if *b.Name == bucketName {
             return true
         }
