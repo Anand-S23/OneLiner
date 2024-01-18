@@ -1,11 +1,7 @@
 package models
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 const userRecordType = "user"
@@ -22,17 +18,8 @@ type User struct {
     CreatedAt time.Time `dynamodbav:"CreatedAt" json:"createdAt"`
 }
 
-func NewUserUUID(email string) uuid.UUID {
-	hasher := md5.New()
-	hasher.Write([]byte(email))
-	hash := hex.EncodeToString(hasher.Sum(nil))
-
-	uuidFromHash := uuid.NewSHA1(uuid.Nil, []byte(hash))
-	return uuidFromHash
-}
-
 func NewUser(userData RegisterDto) User {
-    id := NewUserUUID(userData.Email).String()
+    id := NewHashedUUID(userData.Email)
     now, _ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 
     return User {
@@ -66,7 +53,7 @@ func NewUserRecord(user User) UserRecord {
 }
 
 func GetKeysFromEmail(email string) (string, string) {
-    id := NewUserUUID(email).String()
+    id := NewHashedUUID(email)
     pk := NewUserRecordKey(id)
     sk := NewUserRecordKey(email)
     return pk, sk

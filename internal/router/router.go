@@ -12,12 +12,13 @@ func NewRouter(c *controller.Controller) *mux.Router {
     router := mux.NewRouter()
 	router.HandleFunc("/ping", HandleFunc(c.Ping))
 
+    // Auth
     router.HandleFunc("/register", HandleFunc(c.SignUp)).Methods("POST")
     router.HandleFunc("/login", HandleFunc(c.Login)).Methods("POST")
     router.HandleFunc("/logout", HandleFunc(c.Logout)).Methods("POST")
 
-    //TODO: Remove just for testing
-    router.HandleFunc("/protected", middleware.Authentication(HandleFunc(c.Ping), c.JwtSecretKey))
+    // Post
+    router.HandleFunc("/protected", middleware.Authentication(HandleFunc(c.UploadFile), c.JwtSecretKey))
 
     return router
 }
