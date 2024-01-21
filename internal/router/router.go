@@ -20,6 +20,7 @@ func NewRouter(c *controller.Controller) *mux.Router {
     // Post
     router.HandleFunc("/upload", middleware.Authentication(HandleFunc(c.UploadFile), c.JwtSecretKey)).Methods("POST")
     router.HandleFunc("/post/create", middleware.Authentication(HandleFunc(c.CreatePost), c.JwtSecretKey)).Methods("POST")
+    router.HandleFunc("/post/get/{id}", HandleFunc(c.ReadPost)).Methods("GET")
 
     return router
 }

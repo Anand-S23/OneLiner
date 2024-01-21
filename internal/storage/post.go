@@ -8,6 +8,7 @@ import (
 	"github.com/Anand-S23/Snippet/internal/models"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
@@ -42,5 +43,45 @@ func (store *SnippetStore) PutPost(post models.Post) error {
     }
 
     return nil
+}
+
+func (store *SnippetStore) GetPost(postSK string) models.Post {
+    keyCond := expression.KeyEqual(expression.Key("SK"), expression.Value(postSK))
+
+	expr, err := expression.NewBuilder().WithKeyCondition(keyCond).Build()
+	if err != nil {
+		log.Printf("Failed to build query expression: %s", err)
+        return models.Post{}
+	}
+
+	input := &dynamodb.QueryInput {
+		TableName: store.tableName,
+		IndexName: aws.String("GSI1"),
+		KeyConditionExpression: expr.KeyCondition(),
+		ExpressionAttributeNames: expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+	}
+
+    output, err := store.db.Query(context.TODO(), input)
+	if err != nil {
+		log.Printf("Failed to get post by ID: %s", err)
+        return models.Post{}
+	}
+	
+	if len(output.Items) == 0 {
+		log.Printf("Task not found")
+        return models.Post{}
+	}
+
+    var pr models.PostRecord
+    err = attributevalue.UnmarshalMap(output.Items[0], &pr)
+    if err != nil {
+        log.Printf("Could not unmarshal result item, %s", err)
+        return models.Post{}
+    }
+
+    post := models.NewPostFromRecord(pr)
+    log.Printf("Post returned from db: '%s'", post.ID)
+    return post
 }
 

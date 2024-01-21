@@ -12,9 +12,9 @@ type UserRecord struct {
 }
 
 type User struct {
-    ID        string    `dynamodbav:"id"        json:"id"`
-    Email     string    `dynamodbav:"email"     json:"email"`
-    Password  string    `dynamodbav:"password"  json:"-"`
+    ID        string    `dynamodbav:"ID"        json:"id"`
+    Email     string    `dynamodbav:"Email"     json:"email"`
+    Password  string    `dynamodbav:"Password"  json:"-"`
     CreatedAt time.Time `dynamodbav:"CreatedAt" json:"createdAt"`
 }
 

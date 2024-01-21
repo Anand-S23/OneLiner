@@ -7,6 +7,7 @@ import (
 
 	"github.com/Anand-S23/Snippet/internal/models"
 	"github.com/Anand-S23/Snippet/internal/validators"
+	"github.com/gorilla/mux"
 )
 
 func (c *Controller) UploadFile(w http.ResponseWriter, r *http.Request) error {
@@ -79,7 +80,22 @@ func (c *Controller) CreatePost(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (c *Controller) ReadPost(w http.ResponseWriter, r *http.Request) error {
-    return nil
+    errMsg := map[string]string {"error": "Invalid Post ID"}
+
+    vars := mux.Vars(r)
+    postID, ok := vars["id"]
+    if !ok {
+        return WriteJSON(w, http.StatusNotFound, errMsg)
+    }
+
+    post := c.store.GetPost(models.NewPostRecordSK(postID))
+    if post.ID == "" {
+        log.Printf("Could not get post with sk %s\n", models.NewPostRecordSK(postID))
+        return WriteJSON(w, http.StatusNotFound, errMsg)
+    }
+
+    log.Printf("Returning infromation about post with id %s\n", post.ID)
+    return WriteJSON(w, http.StatusOK, post)
 }
 
 func (c *Controller) UpdatePost(w http.ResponseWriter, r *http.Request) error {
