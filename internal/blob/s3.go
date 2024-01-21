@@ -66,7 +66,6 @@ func createS3Bucket(client *s3.Client, bucketName string, timeout time.Duration)
 
 func bucketExists(buckets *s3.ListBucketsOutput, bucketName string) bool {
     for _, b := range buckets.Buckets {
-        log.Println(*b.Name)
         if *b.Name == bucketName {
             return true
         }

@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/Anand-S23/Snippet/internal/models"
+	"github.com/Anand-S23/Snippet/internal/validators"
 )
 
 func (c *Controller) UploadFile(w http.ResponseWriter, r *http.Request) error {
@@ -44,5 +46,49 @@ func (c *Controller) UploadFile(w http.ResponseWriter, r *http.Request) error {
 
     log.Println("File uploaded successfully to blob storage")
     return WriteJSON(w, http.StatusOK, successMsg)
+}
+
+func (c *Controller) CreatePost(w http.ResponseWriter, r *http.Request) error {
+    var postData models.PostDto
+    err := json.NewDecoder(r.Body).Decode(&postData)
+    if err != nil {
+        errMsg := map[string]string {
+            "error": "Could not parse post data",
+        }
+        return WriteJSON(w, http.StatusBadRequest, errMsg)
+    }
+
+    postErrs := validators.PostValidator(postData, c.store)
+    if len(postErrs) != 0 {
+        log.Println("Failed to create new post, invalid data")
+        return WriteJSON(w, http.StatusBadRequest, postErrs)
+    }
+
+    currentUserID := r.Context().Value("user_id").(string)
+    log.Println(currentUserID)
+
+    post := models.NewPost(postData, currentUserID)
+    err = c.store.PutPost(post)
+    if err != nil {
+        return InternalServerError(w)
+    }
+
+    successMsg := map[string]string {
+        "message": "Post created successfully",
+    }
+    log.Println("Post created successfully")
+    return WriteJSON(w, http.StatusOK, successMsg)
+}
+
+func (c *Controller) ReadPost(w http.ResponseWriter, r *http.Request) error {
+    return nil
+}
+
+func (c *Controller) UpdatePost(w http.ResponseWriter, r *http.Request) error {
+    return nil
+}
+
+func (c *Controller) DeletePost(w http.ResponseWriter, r *http.Request) error {
+    return nil
 }
 
