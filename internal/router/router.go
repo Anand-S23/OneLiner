@@ -18,7 +18,8 @@ func NewRouter(c *controller.Controller) *mux.Router {
     router.HandleFunc("/logout", HandleFunc(c.Logout)).Methods("POST")
 
     // Post
-    router.HandleFunc("/protected", middleware.Authentication(HandleFunc(c.UploadFile), c.JwtSecretKey))
+    router.HandleFunc("/upload", middleware.Authentication(HandleFunc(c.UploadFile), c.JwtSecretKey)).Methods("POST")
+    router.HandleFunc("/post/create", middleware.Authentication(HandleFunc(c.CreatePost), c.JwtSecretKey)).Methods("POST")
 
     return router
 }

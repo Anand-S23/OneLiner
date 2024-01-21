@@ -65,8 +65,6 @@ func (c *Controller) CreatePost(w http.ResponseWriter, r *http.Request) error {
     }
 
     currentUserID := r.Context().Value("user_id").(string)
-    log.Println(currentUserID)
-
     post := models.NewPost(postData, currentUserID)
     err = c.store.PutPost(post)
     if err != nil {

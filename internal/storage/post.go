@@ -41,7 +41,6 @@ func (store *SnippetStore) PutPost(post models.Post) error {
         return err
     }
 
-    log.Println("Post successfully put into the db")
     return nil
 }
 
