@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+// TODO: Error Message
+// TODO: Page not found
+// TODO: Unauthorized
+
 func InternalServerError(w http.ResponseWriter) error {
     errMsg := map[string]string {
         "error": "Internal server error, please try again",

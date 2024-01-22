@@ -103,6 +103,34 @@ func (c *Controller) UpdatePost(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (c *Controller) DeletePost(w http.ResponseWriter, r *http.Request) error {
+
+    currentUserID := r.Context().Value("user_id").(string)
+
+    vars := mux.Vars(r)
+    postID, ok := vars["id"]
+    if !ok {
+        errMsg := map[string]string {"error": "Invalid Post ID"}
+        return WriteJSON(w, http.StatusNotFound, errMsg)
+    }
+
+    post := c.store.GetPost(models.NewPostRecordSK(postID))
+    if post.ID == "" {
+        errMsg := map[string]string {"error": "Invalid Post ID"}
+        log.Printf("Could not get post with sk %s\n", models.NewPostRecordSK(postID))
+        return WriteJSON(w, http.StatusNotFound, errMsg)
+    }
+
+    if post.ID != currentUserID {
+        errMsg := map[string]string {"error": "Unauthorized"}
+        log.Printf("%s is trying to delete post by %s", post.ID, currentUserID)
+        return WriteJSON(w, http.StatusUnauthorized, errMsg)
+    }
+
+    err := c.store.DeletePost(models.NewPostRecordPK(post.UserID), models.NewPostRecordSK(post.ID))
+    if err != nil {
+        return InternalServerError(w)
+    }
+
     return nil
 }
 

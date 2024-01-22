@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
@@ -83,5 +84,17 @@ func (store *SnippetStore) GetPost(postSK string) models.Post {
     post := models.NewPostFromRecord(pr)
     log.Printf("Post returned from db: '%s'", post.ID)
     return post
+}
+
+func (store *SnippetStore) DeletePost(pk string, sk string) error {
+    _, err := store.db.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
+        TableName: store.tableName,
+        Key: map[string]types.AttributeValue{
+            "PK":  &types.AttributeValueMemberS{Value: pk},
+            "SK":  &types.AttributeValueMemberS{Value: sk},
+        },
+    })
+
+    return err
 }
 
