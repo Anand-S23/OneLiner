@@ -3,7 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"sync"
 
 	"github.com/Anand-S23/Snippet/internal/models"
 	"github.com/Anand-S23/Snippet/internal/validators"
@@ -39,6 +41,57 @@ func (c *Controller) UploadFile(w http.ResponseWriter, r *http.Request) error {
 
     log.Println("File uploaded successfully to blob storage")
     return WriteJSON(w, http.StatusOK, successMsg)
+}
+
+func (c *Controller) UploadFiles(w http.ResponseWriter, r *http.Request) error {
+    err := r.ParseMultipartForm(50 << 20)
+	if err != nil {
+        log.Print(err)
+        return BadRequestError(w, "Unable to parse form")
+	}
+
+    files := r.MultipartForm.File["files"]
+
+    var wg sync.WaitGroup
+    var mu sync.Mutex
+    uploadedFiles := make(map[string]string)
+
+    for _, fileHeader := range files {
+        wg.Add(1)
+
+        go func(fileHeader *multipart.FileHeader) {
+            defer wg.Done()
+
+            file, err := fileHeader.Open()
+            if err != nil {
+                log.Println("Error opening file:", err)
+                return
+            }
+            defer file.Close()
+
+            fileID := models.NewUUID()
+            err = c.store.UploadFileToS3(file, fileID)
+            if err != nil {
+                log.Printf("Unable to upload file to s3 bucket: %s\n", err)
+                return
+            }
+
+            mu.Lock()
+            uploadedFiles[fileHeader.Filename] = fileID
+            mu.Unlock()
+        }(fileHeader)
+    }
+
+    wg.Wait()
+
+    if len(uploadedFiles) != len(files) {
+        // TODO: Delete rest of files from s3?
+        log.Printf("%d of %d files uploaded to S3", len(uploadedFiles), len(files))
+        return InternalServerError(w)
+    }
+
+    log.Println("Files uploaded successfully to blob storage")
+    return WriteJSON(w, http.StatusOK, uploadedFiles)
 }
 
 func (c *Controller) GetPostsForCurrentUser(w http.ResponseWriter, r *http.Request) error {
