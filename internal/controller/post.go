@@ -99,11 +99,6 @@ func (c *Controller) ReadPost(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (c *Controller) UpdatePost(w http.ResponseWriter, r *http.Request) error {
-    return nil
-}
-
-func (c *Controller) DeletePost(w http.ResponseWriter, r *http.Request) error {
-
     currentUserID := r.Context().Value("user_id").(string)
 
     vars := mux.Vars(r)
@@ -120,7 +115,61 @@ func (c *Controller) DeletePost(w http.ResponseWriter, r *http.Request) error {
         return WriteJSON(w, http.StatusNotFound, errMsg)
     }
 
-    if post.ID != currentUserID {
+    if post.UserID != currentUserID {
+        errMsg := map[string]string {"error": "Unauthorized"}
+        log.Printf("%s is trying to delete post by %s", post.ID, currentUserID)
+        return WriteJSON(w, http.StatusUnauthorized, errMsg)
+    }
+
+    var postData models.PostDto
+    err := json.NewDecoder(r.Body).Decode(&postData)
+    if err != nil {
+        errMsg := map[string]string {
+            "error": "Could not parse post data",
+        }
+        return WriteJSON(w, http.StatusBadRequest, errMsg)
+    }
+
+    postErrs := validators.PostValidator(postData, c.store)
+    if len(postErrs) != 0 {
+        log.Println("Failed to create new post, invalid data")
+        return WriteJSON(w, http.StatusBadRequest, postErrs)
+    }
+
+    post.Name = postData.Name
+    post.Description = postData.Description
+    post.Files = postData.Files
+
+    err = c.store.PutPost(post)
+    if err != nil {
+        return InternalServerError(w)
+    }
+
+    successMsg := map[string]string {
+        "message": "Post updated successfully",
+    }
+    log.Println("Post updated successfully")
+    return WriteJSON(w, http.StatusOK, successMsg)
+}
+
+func (c *Controller) DeletePost(w http.ResponseWriter, r *http.Request) error {
+    currentUserID := r.Context().Value("user_id").(string)
+
+    vars := mux.Vars(r)
+    postID, ok := vars["id"]
+    if !ok {
+        errMsg := map[string]string {"error": "Invalid Post ID"}
+        return WriteJSON(w, http.StatusNotFound, errMsg)
+    }
+
+    post := c.store.GetPost(models.NewPostRecordSK(postID))
+    if post.ID == "" {
+        errMsg := map[string]string {"error": "Invalid Post ID"}
+        log.Printf("Could not get post with sk %s\n", models.NewPostRecordSK(postID))
+        return WriteJSON(w, http.StatusNotFound, errMsg)
+    }
+
+    if post.UserID != currentUserID {
         errMsg := map[string]string {"error": "Unauthorized"}
         log.Printf("%s is trying to delete post by %s", post.ID, currentUserID)
         return WriteJSON(w, http.StatusUnauthorized, errMsg)

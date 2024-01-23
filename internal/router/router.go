@@ -20,7 +20,8 @@ func NewRouter(c *controller.Controller) *mux.Router {
     // Post
     router.HandleFunc("/upload", middleware.Authentication(HandleFunc(c.UploadFile), c.JwtSecretKey)).Methods("POST")
     router.HandleFunc("/post/create", middleware.Authentication(HandleFunc(c.CreatePost), c.JwtSecretKey)).Methods("POST")
-    router.HandleFunc("/post/get/{id}", HandleFunc(c.ReadPost)).Methods("GET")
+    router.HandleFunc("/post/read/{id}", HandleFunc(c.ReadPost)).Methods("GET")
+    router.HandleFunc("/post/update/{id}", middleware.Authentication(HandleFunc(c.UpdatePost), c.JwtSecretKey)).Methods("POST")
     router.HandleFunc("/post/delete/{id}", middleware.Authentication(HandleFunc(c.DeletePost), c.JwtSecretKey)).Methods("POST")
 
     return router
