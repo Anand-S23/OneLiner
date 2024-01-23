@@ -229,6 +229,9 @@ func (c *Controller) DeletePost(w http.ResponseWriter, r *http.Request) error {
         return InternalServerError(w)
     }
 
-    return nil
+    successMsg := map[string]string {
+        "message": "Post deleted successfully",
+    }
+    return WriteJSON(w, http.StatusOK, successMsg)
 }
 
