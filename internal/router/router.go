@@ -36,7 +36,7 @@ func HandleFunc(fn apiFunc) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         err := fn(w, r)
         if err != nil {
-            errMsg := map[string]string { "error": err.Error() }
+            errMsg := controller.ErrorMessage(err.Error())
             controller.WriteJSON(w, http.StatusInternalServerError, errMsg)
         }
     }

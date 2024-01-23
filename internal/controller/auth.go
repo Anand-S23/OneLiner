@@ -49,10 +49,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) error {
     var userData models.RegisterDto
     err := json.NewDecoder(r.Body).Decode(&userData)
     if err != nil {
-        errMsg := map[string]string {
-            "error": "Could not parse sign up data",
-        }
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
+        return BadRequestError(w, "Could not parse sign up data")
     }
 
     authErrs := validators.AuthValidator(userData, c.store)
@@ -98,26 +95,17 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) error {
     var loginData models.LoginDto
     err := json.NewDecoder(r.Body).Decode(&loginData)
     if err != nil {
-        errMsg := map[string]string {
-            "error": "Could not parse login data",
-        }
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
+        return BadRequestError(w, "Could not parse login data")
     }
 
     user := c.store.GetUser(models.GetKeysFromEmail(loginData.Email))
     if user.ID == "" {
-        errMsg := map[string]string {
-            "error": "Incorrect email or password, please try again",
-        }
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
+        return BadRequestError(w, "Incorrect email or password, please try again")
     }
 
     err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginData.Password))
 	if err != nil {
-        errMsg := map[string]string {
-            "error": "Incorrect email or password, please try again",
-        }
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
+        return BadRequestError(w, "Incorrect email or password, please try again")
 	}
 
     expDuration := time.Hour * 24

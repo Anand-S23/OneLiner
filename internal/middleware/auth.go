@@ -36,9 +36,11 @@ func Authentication(next http.Handler, jwtSecretKey string) http.HandlerFunc {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         userID, err := getUserFromResquest(r, jwtSecretKey)
         if err != nil {
-            errMsg := map[string]string {"error": "Unauthorized"}
+            // TODO: Need to figure out if UnauthorizedServerError can be used here
+            errMsg := controller.ErrorMessage("Unauthorized")
             controller.WriteJSON(w, http.StatusUnauthorized, errMsg)
             log.Println(err.Error())
+
             // TODO: redirect
             return
         }
