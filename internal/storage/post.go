@@ -89,7 +89,6 @@ func (store *SnippetStore) GetPost(postSK string) models.Post {
 func (store *SnippetStore) GetPostsByUser(postPK string) ([]models.Post, error) {
     input := &dynamodb.QueryInput {
         TableName: store.tableName,
-        ConsistentRead: aws.Bool(true),
         KeyConditionExpression: aws.String("PK = :pk"),
         ExpressionAttributeValues: map[string]types.AttributeValue {
             ":pk": &types.AttributeValueMemberS{Value: postPK},

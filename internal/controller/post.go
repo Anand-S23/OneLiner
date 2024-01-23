@@ -100,17 +100,14 @@ func (c *Controller) UploadFiles(w http.ResponseWriter, r *http.Request) error {
 
 func (c *Controller) GetPostsForCurrentUser(w http.ResponseWriter, r *http.Request) error {
     currentUserID := r.Context().Value("user_id").(string)
-    posts, err := c.store.GetPostsByUser(currentUserID)
+    posts, err := c.store.GetPostsByUser(models.NewPostRecordPK(currentUserID))
     if err != nil {
         log.Printf("Could not get posts for %s user: %s", currentUserID, err)
         return InternalServerError(w)
     }
 
-    successMsg := map[string][]models.Post {
-        "posts": posts,
-    }
-    log.Printf("Retrived posts for %s successfully", currentUserID)
-    return WriteJSON(w, http.StatusOK, successMsg)
+    log.Printf("Retrived %d posts for %s user successfully", len(posts), currentUserID)
+    return WriteJSON(w, http.StatusOK, posts)
 }
 
 func (c *Controller) CreatePost(w http.ResponseWriter, r *http.Request) error {
