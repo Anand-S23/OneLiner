@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-const postRecordType = "post"
+const PostRecordType = "post"
 
 type PostRecord struct {
 	Record
@@ -54,7 +54,7 @@ func NewPostRecord(post Post) PostRecord {
     var pr PostRecord
     pr.PK = NewPostRecordPK(post.UserID)
     pr.SK = NewPostRecordSK(post.ID)
-    pr.Type = postRecordType
+    pr.Type = PostRecordType
     pr.ID = post.ID
     pr.Name = post.Name
     pr.Description = post.Description
@@ -70,6 +70,6 @@ func NewPostRecordPK(userID string) string {
 }
 
 func NewPostRecordSK(postID string) string {
-	return postRecordType + "/" + postID
+	return PostRecordType + "/" + postID
 }
 

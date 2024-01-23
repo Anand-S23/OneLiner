@@ -86,6 +86,45 @@ func (store *SnippetStore) GetPost(postSK string) models.Post {
     return post
 }
 
+func (store *SnippetStore) GetPostsByUser(postPK string) ([]models.Post, error) {
+    input := &dynamodb.QueryInput {
+        TableName: store.tableName,
+        ConsistentRead: aws.Bool(true),
+        KeyConditionExpression: aws.String("PK = :pk"),
+        ExpressionAttributeValues: map[string]types.AttributeValue {
+            ":pk": &types.AttributeValueMemberS{Value: postPK},
+        },
+    }
+
+    output, err := store.db.Query(context.TODO(), input)
+	if err != nil {
+		return []models.Post{}, err
+	}
+
+    var posts []models.Post
+    for _, item := range output.Items {
+        var record models.Record
+
+        err = attributevalue.UnmarshalMap(item, &record)
+        if err != nil {
+            return []models.Post{}, err
+        }
+
+        switch record.Type {
+        case models.PostRecordType:
+            var post models.Post
+            err = attributevalue.UnmarshalMap(item, &post)
+			if err != nil {
+                return []models.Post{}, err
+			}
+
+            posts = append(posts, post)
+        }
+    }
+
+    return posts, nil
+}
+
 func (store *SnippetStore) DeletePost(pk string, sk string) error {
     _, err := store.db.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
         TableName: store.tableName,

@@ -49,6 +49,21 @@ func (c *Controller) UploadFile(w http.ResponseWriter, r *http.Request) error {
     return WriteJSON(w, http.StatusOK, successMsg)
 }
 
+func (c *Controller) GetPostsForCurrentUser(w http.ResponseWriter, r *http.Request) error {
+    currentUserID := r.Context().Value("user_id").(string)
+    posts, err := c.store.GetPostsByUser(currentUserID)
+    if err != nil {
+        log.Printf("Could not get posts for %s user: %s", currentUserID, err)
+        return InternalServerError(w)
+    }
+
+    successMsg := map[string][]models.Post {
+        "posts": posts,
+    }
+    log.Printf("Retrived posts for %s successfully", currentUserID)
+    return WriteJSON(w, http.StatusOK, successMsg)
+}
+
 func (c *Controller) CreatePost(w http.ResponseWriter, r *http.Request) error {
     var postData models.PostDto
     err := json.NewDecoder(r.Body).Decode(&postData)

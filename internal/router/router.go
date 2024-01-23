@@ -17,8 +17,11 @@ func NewRouter(c *controller.Controller) *mux.Router {
     router.HandleFunc("/login", HandleFunc(c.Login)).Methods("POST")
     router.HandleFunc("/logout", HandleFunc(c.Logout)).Methods("POST")
 
-    // Post
+    // S3
     router.HandleFunc("/upload", middleware.Authentication(HandleFunc(c.UploadFile), c.JwtSecretKey)).Methods("POST")
+
+    // Post
+    router.HandleFunc("/posts", middleware.Authentication(HandleFunc(c.GetPostsForCurrentUser), c.JwtSecretKey)).Methods("GET")
     router.HandleFunc("/post/create", middleware.Authentication(HandleFunc(c.CreatePost), c.JwtSecretKey)).Methods("POST")
     router.HandleFunc("/post/read/{id}", HandleFunc(c.ReadPost)).Methods("GET")
     router.HandleFunc("/post/update/{id}", middleware.Authentication(HandleFunc(c.UpdatePost), c.JwtSecretKey)).Methods("POST")

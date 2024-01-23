@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-const userRecordType = "user"
+const UserRecordType = "user"
 
 type UserRecord struct {
 	Record
@@ -43,7 +43,7 @@ func NewUserRecord(user User) UserRecord {
     var ur UserRecord
     ur.PK = NewUserRecordKey(user.ID)
     ur.SK = NewUserRecordKey(user.Email)
-    ur.Type = userRecordType
+    ur.Type = UserRecordType
     ur.ID = user.ID
     ur.Email = user.Email
     ur.Password = user.Password
@@ -60,6 +60,6 @@ func GetKeysFromEmail(email string) (string, string) {
 }
 
 func NewUserRecordKey(id string) string {
-	return userRecordType + "/" + id
+	return UserRecordType + "/" + id
 }
 
