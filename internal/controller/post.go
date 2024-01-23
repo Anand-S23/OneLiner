@@ -51,6 +51,10 @@ func (c *Controller) UploadFiles(w http.ResponseWriter, r *http.Request) error {
 	}
 
     files := r.MultipartForm.File["files"]
+    err = validators.UploadValidator(files)
+    if err != nil {
+        return BadRequestError(w, err.Error())
+    }
 
     var wg sync.WaitGroup
     var mu sync.Mutex
