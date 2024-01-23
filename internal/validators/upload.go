@@ -9,6 +9,10 @@ import (
 const MaxFilesPerRepo = 5
 
 func UploadValidator(files []*multipart.FileHeader) error {
+    if len(files) == 0 {
+        return errors.New("Must have at least one file in the repo")
+    }
+
     if len(files) > MaxFilesPerRepo {
         errMsg := fmt.Sprintf("The maximum number of pages is %d", MaxFilesPerRepo) 
         return errors.New(errMsg)
