@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Anand-S23/Snippet/config"
+	"github.com/Anand-S23/Snippet/internal/blob"
 	"github.com/Anand-S23/Snippet/internal/controller"
 	"github.com/Anand-S23/Snippet/internal/database"
 	"github.com/Anand-S23/Snippet/internal/router"
@@ -19,9 +20,11 @@ func main() {
         log.Fatal(err)
     }
 
-    db := database.InitDB(10 * time.Second)
-    dynamoStore := storage.NewDynamoStore(db, database.SnippetTableName)
-    controller := controller.NewController(dynamoStore, env.JWT_SECRET, env.PRODUCTION)
+    timeout := 10 * time.Second
+    db := database.InitDB(timeout)
+    s3 := blob.InitBlob(env.S3_BUCKET, timeout)
+    store := storage.NewSnippetStore(db, database.SnippetTableName, s3)
+    controller := controller.NewController(store, env.JWT_SECRET, env.PRODUCTION)
     router := router.NewRouter(controller)
 
 	corsHandler := handlers.CORS(
@@ -34,3 +37,4 @@ func main() {
     log.Println("Snippet running on port: ", env.PORT);
     http.ListenAndServe(":" + env.PORT, corsHandler(router))
 }
+

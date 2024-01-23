@@ -40,6 +40,24 @@ var snippetTableSchema *dynamodb.CreateTableInput = &dynamodb.CreateTableInput {
         ReadCapacityUnits:  aws.Int64(10),
         WriteCapacityUnits: aws.Int64(10),
     },
+    GlobalSecondaryIndexes: []types.GlobalSecondaryIndex {
+        {
+            IndexName: aws.String("GSI1"),
+            KeySchema: []types.KeySchemaElement {
+                {
+                    AttributeName: aws.String("SK"),
+                    KeyType:       types.KeyTypeHash,
+                },
+            },
+            Projection: &types.Projection {
+                ProjectionType: types.ProjectionTypeAll,
+            },
+            ProvisionedThroughput: &types.ProvisionedThroughput {
+                ReadCapacityUnits:  aws.Int64(10),
+                WriteCapacityUnits: aws.Int64(10),
+            },
+        },       
+    },
 }
 
 func InitDB(timeout time.Duration) *dynamodb.Client {

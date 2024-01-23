@@ -9,7 +9,7 @@ import (
 )
 
 
-func AuthValidator(userData models.RegisterDto, store *storage.DynamoStore) map[string]string {
+func AuthValidator(userData models.RegisterDto, store *storage.SnippetStore) map[string]string {
     errs := make(map[string]string, 2)
 
     err := validateEmail(userData.Email, store)
@@ -25,7 +25,7 @@ func AuthValidator(userData models.RegisterDto, store *storage.DynamoStore) map[
     return errs
 }
 
-func validateEmail(email string, store *storage.DynamoStore) error {
+func validateEmail(email string, store *storage.SnippetStore) error {
     _, err := mail.ParseAddress(email)
     if err != nil {
         return errors.New("Email entered is not valid")

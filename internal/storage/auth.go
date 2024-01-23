@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-func (store *DynamoStore) PutUser(user models.User) error {
+func (store *SnippetStore) PutUser(user models.User) error {
     ur := models.NewUserRecord(user)
     item, err := attributevalue.MarshalMap(ur)
     if err != nil {
@@ -34,7 +34,7 @@ func (store *DynamoStore) PutUser(user models.User) error {
     return nil
 }
 
-func (store *DynamoStore) GetUser(pk string, sk string) models.User {
+func (store *SnippetStore) GetUser(pk string, sk string) models.User {
     input := &dynamodb.GetItemInput {
         TableName: store.tableName,
         ConsistentRead: aws.Bool(true),
