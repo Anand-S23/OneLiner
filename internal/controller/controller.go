@@ -8,10 +8,10 @@ import (
 )
 
 type Controller struct {
-    store        *storage.SnippetStore
-    production   bool
-    JwtSecretKey []byte
-    CookieSecret *securecookie.SecureCookie
+    store            *storage.SnippetStore
+    production       bool
+    JwtSecretKey     []byte
+    CookieSecret     *securecookie.SecureCookie
 }
 
 func NewController(store *storage.SnippetStore, secretKey []byte, cookieHashKey []byte, cookieBlockKey []byte, production bool) *Controller {

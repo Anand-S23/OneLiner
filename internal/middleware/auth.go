@@ -40,12 +40,8 @@ func Authentication(next http.Handler, jwtSecretKey []byte, cookieSecret *secure
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         claims, err := getUserFromResquest(r, jwtSecretKey, cookieSecret)
         if err != nil {
-            // TODO: Need to figure out if UnauthorizedServerError can be used here
-            errMsg := controller.ErrorMessage("Unauthorized")
-            controller.WriteJSON(w, http.StatusUnauthorized, errMsg)
             log.Println(err.Error())
-
-            // TODO: redirect
+            controller.UnauthorizedError(w)
             return
         }
         

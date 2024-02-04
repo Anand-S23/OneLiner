@@ -1,6 +1,7 @@
 'use client';
 
 import { POSTS_ENDPOINT } from '@/lib/consts';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 type FilesType = {
@@ -17,6 +18,7 @@ interface Post {
 }
 
 export default function Home() {
+    const router = useRouter();
     const [isLoaded, setIsLoaded] = useState(false);
     const [posts, setPosts] = useState<Post[]>([]);
 
@@ -34,6 +36,7 @@ export default function Home() {
                 console.log("Error occured while getting posts for signed in user");
                 setPosts([]);
                 setIsLoaded(true);
+                router.push("/login")
             }
 
             const data = await response.json() as Post[];
