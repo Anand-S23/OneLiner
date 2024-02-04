@@ -27,6 +27,7 @@ const RegisterForm = () => {
             mode: "cors",
             body: JSON.stringify(data),
             headers: { "Content-Type": "application/json" },
+            credentials: 'include'
         });
 
         const resData = await response.json();

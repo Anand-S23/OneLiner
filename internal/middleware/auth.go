@@ -8,33 +8,35 @@ import (
 
 	"github.com/Anand-S23/Snippet/internal/controller"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/securecookie"
 )
 
-func getUserFromResquest(r *http.Request, jwtSecretKey string) (string, error) {
-    cookie, err := r.Cookie("jwt")
-    if err != nil || cookie.Value == "" {
-        return "", errors.New("Invalid request, could not parse jwt cookie")
-    }
+func getUserFromResquest(r *http.Request, jwtSecretKey string, cookieSecret *securecookie.SecureCookie) (*controller.Claims, error) {
+    tokenString, err := controller.ParseCookie(r, cookieSecret, controller.COOKIE_NAME)
+	if err != nil {
+        log.Println(err)
+        return nil, errors.New("Invalid request, could not parse cookie")
+	}
 
-    token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
-        return []byte(jwtSecretKey), nil
-    })
-    if err != nil || !token.Valid {
-        return "", errors.New("Invalid cookie, not able to parse token")
-    }
+	token, err := jwt.ParseWithClaims(tokenString, &controller.Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecretKey), nil
+	})
+	if err != nil {
+        log.Println(err)
+        return nil, errors.New("Invalid cookie, not able to parse token")
+	}
+    
+	claims, ok := token.Claims.(*controller.Claims)
+	if !ok || !token.Valid {
+        return nil, errors.New("Invalid token, not able to parse claims")
+	}
 
-    claims, ok := token.Claims.(jwt.MapClaims)
-    if !ok {
-        return "", errors.New("Invalid token, not able to parse claims")
-    }
-
-    userID := claims["user_id"].(string)
-    return userID, nil
+    return claims, nil
 }
 
-func Authentication(next http.Handler, jwtSecretKey string) http.HandlerFunc {
+func Authentication(next http.Handler, jwtSecretKey string, cookieSecret *securecookie.SecureCookie) http.HandlerFunc {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        userID, err := getUserFromResquest(r, jwtSecretKey)
+        claims, err := getUserFromResquest(r, jwtSecretKey, cookieSecret)
         if err != nil {
             // TODO: Need to figure out if UnauthorizedServerError can be used here
             errMsg := controller.ErrorMessage("Unauthorized")
@@ -45,7 +47,7 @@ func Authentication(next http.Handler, jwtSecretKey string) http.HandlerFunc {
             return
         }
         
-        ctx := context.WithValue(r.Context(), "user_id", userID)
+        ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
     })
 }

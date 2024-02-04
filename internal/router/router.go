@@ -18,14 +18,14 @@ func NewRouter(c *controller.Controller) *mux.Router {
     router.HandleFunc("/logout", HandleFunc(c.Logout)).Methods("POST")
 
     // S3
-    router.HandleFunc("/upload", middleware.Authentication(HandleFunc(c.UploadFiles), c.JwtSecretKey)).Methods("POST")
+    router.HandleFunc("/upload", middleware.Authentication(HandleFunc(c.UploadFiles), c.JwtSecretKey, c.CookieSecret)).Methods("POST")
 
     // Post
-    router.HandleFunc("/posts", middleware.Authentication(HandleFunc(c.GetPostsForCurrentUser), c.JwtSecretKey)).Methods("GET")
-    router.HandleFunc("/post/create", middleware.Authentication(HandleFunc(c.CreatePost), c.JwtSecretKey)).Methods("POST")
+    router.HandleFunc("/posts", middleware.Authentication(HandleFunc(c.GetPostsForCurrentUser), c.JwtSecretKey, c.CookieSecret)).Methods("GET")
+    router.HandleFunc("/post/create", middleware.Authentication(HandleFunc(c.CreatePost), c.JwtSecretKey, c.CookieSecret)).Methods("POST")
     router.HandleFunc("/post/read/{id}", HandleFunc(c.ReadPost)).Methods("GET")
-    router.HandleFunc("/post/update/{id}", middleware.Authentication(HandleFunc(c.UpdatePost), c.JwtSecretKey)).Methods("POST")
-    router.HandleFunc("/post/delete/{id}", middleware.Authentication(HandleFunc(c.DeletePost), c.JwtSecretKey)).Methods("POST")
+    router.HandleFunc("/post/update/{id}", middleware.Authentication(HandleFunc(c.UpdatePost), c.JwtSecretKey, c.CookieSecret)).Methods("POST")
+    router.HandleFunc("/post/delete/{id}", middleware.Authentication(HandleFunc(c.DeletePost), c.JwtSecretKey, c.CookieSecret)).Methods("POST")
 
     return router
 }

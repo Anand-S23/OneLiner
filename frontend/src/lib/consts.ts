@@ -5,3 +5,5 @@ export const LOGIN_ENDPOINT = BACKEND_URI + "/login";
 export const REGISTER_ENDPOINT = BACKEND_URI + "/register";
 export const LOGOUT_ENDPOINT = BACKEND_URI + "/logout";
 
+// Post Endpoints
+export const POSTS_ENDPOINT = BACKEND_URI + "/posts";
