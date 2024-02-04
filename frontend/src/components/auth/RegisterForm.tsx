@@ -56,9 +56,8 @@ const RegisterForm = () => {
             return;
         }
 
-        // TODO: potentially go striaght to login
-        // Redirect to homepage
-        router.push("/");
+        // Redirect to login
+        router.push("/login");
     };
 
     return (

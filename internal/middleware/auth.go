@@ -16,7 +16,7 @@ import (
 func getUserFromResquest(r *http.Request, jwtSecretKey []byte, cookieSecret *securecookie.SecureCookie) (*models.Claims, error) {
     tokenString, err := models.ParseCookie(r, cookieSecret, models.COOKIE_NAME)
 	if err != nil {
-        errMsg := fmt.Sprintf("Invalid request, could not parse cookie: %s\n", err)
+        errMsg := fmt.Sprintf("Invalid request, could not parse cookie: %s", err)
         return nil, errors.New(errMsg)
 	}
 
@@ -24,7 +24,7 @@ func getUserFromResquest(r *http.Request, jwtSecretKey []byte, cookieSecret *sec
 		return jwtSecretKey, nil
 	})
 	if err != nil {
-        errMsg := fmt.Sprintf("Invalid cookie, could not parse token: %s\n", err)
+        errMsg := fmt.Sprintf("Invalid cookie, could not parse token: %s", err)
         return nil, errors.New(errMsg)
 	}
     
