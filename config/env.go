@@ -7,9 +7,9 @@ import (
 
 type EnvVars struct {
     PRODUCTION       bool
-    JWT_SECRET       string
-    COOKIE_HASH_KEY  string
-    COOKIE_BLOCK_KEY string
+    JWT_SECRET       []byte
+    COOKIE_HASH_KEY  []byte
+    COOKIE_BLOCK_KEY []byte
     PORT             string
     S3_BUCKET        string
 }
@@ -24,9 +24,9 @@ func LoadEnv() (*EnvVars, error) {
 
     return &EnvVars {
         PRODUCTION: (envMode == "production"),
-        JWT_SECRET: secret,
-        COOKIE_HASH_KEY: hashKey,
-        COOKIE_BLOCK_KEY: blockKey,
+        JWT_SECRET: []byte(secret),
+        COOKIE_HASH_KEY: []byte(hashKey),
+        COOKIE_BLOCK_KEY: []byte(blockKey),
         PORT: port,
         S3_BUCKET: s3Bucket,
     }, nil

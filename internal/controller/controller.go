@@ -10,16 +10,16 @@ import (
 type Controller struct {
     store        *storage.SnippetStore
     production   bool
-    JwtSecretKey string
+    JwtSecretKey []byte
     CookieSecret *securecookie.SecureCookie
 }
 
-func NewController(store *storage.SnippetStore, secretKey string, cookieHashKey string, cookieBlockKey string, production bool) *Controller {
+func NewController(store *storage.SnippetStore, secretKey []byte, cookieHashKey []byte, cookieBlockKey []byte, production bool) *Controller {
     return &Controller {
         store: store,
         production: production,
         JwtSecretKey: secretKey,
-        CookieSecret: securecookie.New([]byte(cookieHashKey), []byte(cookieBlockKey)),
+        CookieSecret: securecookie.New(cookieHashKey, cookieBlockKey),
     }
 }
 

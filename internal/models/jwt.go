@@ -15,7 +15,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func GenerateToken(secretKey string, userID string, expDuration time.Duration) (string, error) {
+func GenerateToken(secretKey []byte, userID string, expDuration time.Duration) (string, error) {
 	claims := &Claims{
 		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
@@ -24,7 +24,7 @@ func GenerateToken(secretKey string, userID string, expDuration time.Duration) (
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(secretKey))
+	return token.SignedString(secretKey)
 }
 
 func GenerateCookie(cookieSecret *securecookie.SecureCookie, name string, value string, expDuration time.Duration) *http.Cookie {

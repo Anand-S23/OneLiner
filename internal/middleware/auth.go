@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/securecookie"
 )
 
-func getUserFromResquest(r *http.Request, jwtSecretKey string, cookieSecret *securecookie.SecureCookie) (*models.Claims, error) {
+func getUserFromResquest(r *http.Request, jwtSecretKey []byte, cookieSecret *securecookie.SecureCookie) (*models.Claims, error) {
     tokenString, err := models.ParseCookie(r, cookieSecret, models.COOKIE_NAME)
 	if err != nil {
         log.Println(err)
@@ -20,7 +20,7 @@ func getUserFromResquest(r *http.Request, jwtSecretKey string, cookieSecret *sec
 	}
 
 	token, err := jwt.ParseWithClaims(tokenString, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(jwtSecretKey), nil
+		return jwtSecretKey, nil
 	})
 	if err != nil {
         log.Println(err)
@@ -35,7 +35,7 @@ func getUserFromResquest(r *http.Request, jwtSecretKey string, cookieSecret *sec
     return claims, nil
 }
 
-func Authentication(next http.Handler, jwtSecretKey string, cookieSecret *securecookie.SecureCookie) http.HandlerFunc {
+func Authentication(next http.Handler, jwtSecretKey []byte, cookieSecret *securecookie.SecureCookie) http.HandlerFunc {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         claims, err := getUserFromResquest(r, jwtSecretKey, cookieSecret)
         if err != nil {
