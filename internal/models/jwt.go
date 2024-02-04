@@ -27,7 +27,7 @@ func GenerateToken(secretKey []byte, userID string, expDuration time.Duration) (
 	return token.SignedString(secretKey)
 }
 
-func GenerateCookie(cookieSecret *securecookie.SecureCookie, name string, value string, expDuration time.Duration) *http.Cookie {
+func GenerateCookie(cookieSecret *securecookie.SecureCookie, name string, value string, expDuration time.Duration, secure bool) *http.Cookie {
     encoded, err := cookieSecret.Encode(name, value)
 	if err == nil {
 		return &http.Cookie {
@@ -36,8 +36,8 @@ func GenerateCookie(cookieSecret *securecookie.SecureCookie, name string, value 
 			Path:  "/",
             MaxAge: int(expDuration.Seconds()),
             Expires: time.Now().Add(expDuration),
-            Secure: false,
-            HttpOnly: false,
+            Secure: secure,
+            HttpOnly: secure,
 		}
 	}
 

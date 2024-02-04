@@ -71,8 +71,7 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) error {
         return InternalServerError(w)
     }
 
-    cookie := models.GenerateCookie(c.CookieSecret, models.COOKIE_NAME, token, expDuration)
-    log.Println(cookie)
+    cookie := models.GenerateCookie(c.CookieSecret, models.COOKIE_NAME, token, expDuration, c.production)
     if cookie == nil {
         log.Println("Error generating cookie")
         return InternalServerError(w)
