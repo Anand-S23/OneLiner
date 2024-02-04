@@ -1,4 +1,4 @@
-package controller
+package models
 
 import (
 	"net/http"
@@ -7,6 +7,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/securecookie"
 )
+
+const COOKIE_NAME = "jwt"
 
 type Claims struct {
 	UserID string `json:"user_id"`

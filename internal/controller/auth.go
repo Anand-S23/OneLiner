@@ -11,8 +11,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const COOKIE_NAME = "jwt"
-
 func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) error {
     var userData models.RegisterDto
     err := json.NewDecoder(r.Body).Decode(&userData)
@@ -67,13 +65,13 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) error {
 	}
 
     expDuration := time.Hour * 24
-    token, err := GenerateToken(c.JwtSecretKey, user.ID, expDuration)
+    token, err := models.GenerateToken(c.JwtSecretKey, user.ID, expDuration)
     if err != nil {
         log.Println("Error generating token")
         return InternalServerError(w)
     }
 
-    cookie := GenerateCookie(c.CookieSecret, COOKIE_NAME, token, expDuration)
+    cookie := models.GenerateCookie(c.CookieSecret, models.COOKIE_NAME, token, expDuration)
     log.Println(cookie)
     if cookie == nil {
         log.Println("Error generating cookie")
@@ -89,7 +87,7 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) error {
-    cookie := GenerateExpiredCookie(COOKIE_NAME)
+    cookie := models.GenerateExpiredCookie(models.COOKIE_NAME)
     http.SetCookie(w, cookie)
     log.Println("User successfully logged out")
     return WriteJSON(w, http.StatusOK, "")
