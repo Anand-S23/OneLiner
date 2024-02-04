@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -15,16 +16,16 @@ import (
 func getUserFromResquest(r *http.Request, jwtSecretKey []byte, cookieSecret *securecookie.SecureCookie) (*models.Claims, error) {
     tokenString, err := models.ParseCookie(r, cookieSecret, models.COOKIE_NAME)
 	if err != nil {
-        log.Println(err)
-        return nil, errors.New("Invalid request, could not parse cookie")
+        errMsg := fmt.Sprintf("Invalid request, could not parse cookie: %s\n", err)
+        return nil, errors.New(errMsg)
 	}
 
 	token, err := jwt.ParseWithClaims(tokenString, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return jwtSecretKey, nil
 	})
 	if err != nil {
-        log.Println(err)
-        return nil, errors.New("Invalid cookie, not able to parse token")
+        errMsg := fmt.Sprintf("Invalid cookie, could not parse token: %s\n", err)
+        return nil, errors.New(errMsg)
 	}
     
 	claims, ok := token.Claims.(*models.Claims)
