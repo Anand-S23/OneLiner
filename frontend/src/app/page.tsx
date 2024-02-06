@@ -9,18 +9,18 @@ type FilesType = {
 }
 
 interface Post {
-    ID: string,
-    Name: string
-    Description: string,
-    Files: FilesType,
-    UserID: string,
-    CreatedAt: Date
+    id: string,
+    name: string
+    description: string,
+    files: FilesType,
+    userID: string,
+    createdAt: Date
 }
 
 export default function Home() {
     const router = useRouter();
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<Array<Post>>([]);
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
     useEffect(() => {
         const getPosts = async () => {
@@ -35,35 +35,46 @@ export default function Home() {
                 // TODO: Handle error
                 console.log("Error occured while getting posts for signed in user");
                 setPosts([]);
-                setIsLoaded(true);
-                router.push("/login")
+                router.push("/login");
+                return;
             }
 
-            const data = await response.json() as Post[];
-            console.log(data);
-            setPosts(data);
+            const data: Array<Post> = await response.json() as Array<Post>;
+            setPosts(data as Array<Post>);
             setIsLoaded(true);
         }
 
         getPosts();
     }, []);
 
-    if (isLoaded) {
-        return '';
+    if (!isLoaded) {
+        return <></>;
     }
 
     return (
         <div>
-            { posts.map(post => {
-                return (
-                    <div key={post.ID}>
-                        <p> {post.ID} </p>
-                        <p> {post.Name} </p>
-                        <p> {post.Description} </p>
-                        <p> {post.CreatedAt.toString()} </p>
-                    </div>
-                );
-            })}
+            <h1> POSTS </h1>
+            <div className="p-2">
+                { posts.map(post => {
+                    return (
+                        <div key={post.id}>
+                            <p> Post ID: {post.id} </p>
+                            <p> User ID: {post.userID} </p>
+                            <p> Name: {post.name} </p>
+                            <p> Description: {post.description} </p>
+                            <p> Created At: {post.createdAt.toString()} </p>
+                            <p> Files: </p>
+                            <div>
+                                { Object.keys(post.files).map((key) => (
+                                    <div key={key}>
+                                        <p className='px-4'>{`- ${key}: ${post.files[key]}`}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }
