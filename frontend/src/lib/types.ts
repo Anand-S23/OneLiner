@@ -39,3 +39,15 @@ export interface UserLoginResult {
     User_ID: string;
 }
 
+export const CreateRepoSchema = z.
+    object({
+        name: z
+            .string({ required_error: 'Repo name is required' })
+            .min(1, { message: 'Repo name is required'})
+            .trim(),
+        description: z
+            .string({ required_error: 'Repo name is required' })
+            .min(1, { message: 'Repo name is required'})
+            .trim()
+})
+
