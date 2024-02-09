@@ -82,7 +82,7 @@ const SingularFile = (props: SingularFileProps) => {
     const handleFilenameUpdate = (e: ChangeEvent<HTMLInputElement>) => {
         let filename = e.target.value;
 
-        var nameArr = filename.split(".");
+        var nameArr = filename.trim().split(".");
         let extenstion = "";
         if (nameArr[0] !== "" && nameArr.length === 2)  {
             extenstion = nameArr.pop() ?? "";

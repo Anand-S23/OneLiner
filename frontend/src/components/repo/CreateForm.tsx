@@ -5,7 +5,9 @@ import SingularFile from './SingularFile';
 import * as monaco from 'monaco-editor';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
+import { CREATE_REPO_ENDPOINT, UPLOAD_FILES_ENDPOINT } from '@/lib/consts';
+import { FilesType } from '@/lib/types';
 
 
 interface FileDetails {
@@ -52,11 +54,109 @@ const CreateForm = () => {
         setFiles(updatedFiles);
     }
 
+    const isFormValid = (name: string, description: string, uploadFilesCount: number) => {
+        let valid = true;
+        if (name.length < 1 || name.length > 50) {
+            // TODO: Error handling
+            valid = false;
+        }
+
+        if (description.length > 100) {
+            // TODO: Error handling
+            valid = false;
+        }
+
+        if (uploadFilesCount === 0) {
+            // TODO: Error handling
+            valid = false;
+        }
+        
+        return valid;
+    }
+
+    const hasDuplicateFilenames = (details: Array<FileDetails>) => {
+        const seen = new Set();
+
+        for (let i = 0; i < details.length; ++i) {
+            let currentName = details[i].name;
+            if (seen.has(currentName)) {
+                return true;
+            }
+
+            seen.add(currentName);
+        }
+
+        return false;
+    }
+
     // TODO: Implement this function so it is hitting the endpoints
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+
+        if (hasDuplicateFilenames(files)) {
+            // TODO: Error handling
+            console.log("Multiple files cannot have the same name");
+            return;
+        }
+
         const formData = new FormData();
-        console.log(formData, name, description);
+        for (let i = 0; i < files.length; ++i) {
+            const editorData = files[i].editorRef?.current?.getValue() ?? "";
+            const filename = files[i].name.trim();
+            if (editorData === "" || filename === "") {
+                // TODO: error handling
+                console.log("Need to have data in editor and name set");
+                return;
+            }
+            const fileData = new Blob([editorData], {type: "text/plain"});
+            const file = new File([fileData], filename);
+            formData.append("files", file);
+        }
+
+        if (!isFormValid(name, description, formData.getAll("files").length)) {
+            console.log("Form is not valid");
+            return;
+        }
+
+         const uploadResponse = await fetch(UPLOAD_FILES_ENDPOINT, {
+            method: "POST",
+            mode: "cors",
+            body: formData,
+            credentials: 'include'
+        });
+
+        const uploadResponseData = await uploadResponse.json();
+        const filesUploadResponse = uploadResponseData as FilesType;
+
+        if (!uploadResponse.ok) {
+            // TODO: Handle Error
+            console.log("Error Uploading Files to S3", uploadResponse);
+            return;
+        }
+
+        const createData = {
+            name: name,
+            description: description,
+            files: filesUploadResponse
+        }
+
+         const createResponse = await fetch(CREATE_REPO_ENDPOINT, {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify(createData),
+            headers: { "Content-Type": "application/json" },
+            credentials: 'include'
+        });
+
+        const createResponseData = await createResponse.json();
+
+        if (!createResponse.ok) {
+            // TODO: Handle Error
+            console.log("Could not create repo");
+            return;
+        }
+
+        console.log(createResponseData);
     };
 
     return (

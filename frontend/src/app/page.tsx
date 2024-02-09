@@ -1,12 +1,9 @@
 'use client';
 
 import { POSTS_ENDPOINT } from '@/lib/consts';
+import { FilesType } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-type FilesType = {
-    [key: string]: string
-}
 
 interface Post {
     id: string,

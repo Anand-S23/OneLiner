@@ -51,3 +51,7 @@ export const CreateRepoSchema = z.
             .trim()
 })
 
+export type FilesType = {
+    [key: string]: string
+}
+
