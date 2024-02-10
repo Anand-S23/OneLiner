@@ -30,8 +30,10 @@ func PostValidator(postData models.PostDto, store *storage.SnippetStore) map[str
 }
 
 func validateName(name string) error {
+    // TODO: Validate the name is unique in the repo
+
     if len(name) < 1 || len(name) > 50 {
-        errors.New("Name of repo should be at least 1 character long, and not exceed 50")
+        return errors.New("Name of repo should be at least 1 character long, and not exceed 50")
     }
     return nil
 }

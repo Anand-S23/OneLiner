@@ -89,7 +89,6 @@ const CreateForm = () => {
         return false;
     }
 
-    // TODO: Implement this function so it is hitting the endpoints
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 

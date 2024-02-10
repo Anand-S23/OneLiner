@@ -1,5 +1,6 @@
 'use client';
 
+import RepoCard from '@/components/repo/RepoCard';
 import { POSTS_ENDPOINT } from '@/lib/consts';
 import { FilesType } from '@/lib/types';
 import { useRouter } from 'next/navigation';
@@ -54,19 +55,16 @@ export default function Home() {
             <div className="p-2">
                 { posts.map(post => {
                     return (
-                        <div key={post.id}>
-                            <p> Post ID: {post.id} </p>
-                            <p> User ID: {post.userID} </p>
-                            <p> Name: {post.name} </p>
-                            <p> Description: {post.description} </p>
-                            <p> Created At: {post.createdAt.toString()} </p>
-                            <p> Files: </p>
-                            <div>
-                                { Object.keys(post.files).map((key) => (
-                                    <div key={key}>
-                                        <p className='px-4'>{`- ${key}: ${post.files[key]}`}</p>
-                                    </div>
-                                ))}
+                        <div className="container mx-auto mt-8">
+                            <div 
+                                className='grid grid-col-1 md:grid-col-2 lg:grid-col-3'
+                                key={post.id}
+                            >
+                                <RepoCard 
+                                    name={post.name}
+                                    description={post.description}
+                                    repoID={post.id}
+                                />
                             </div>
                         </div>
                     );
