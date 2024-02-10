@@ -5,7 +5,7 @@ import * as monaco from 'monaco-editor';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChangeEvent, MutableRefObject, useRef, useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Copy, Download, Trash2 } from 'lucide-react';
 import { getFileExtension } from '@/lib/utils';
 
 const getOptions = (editable: boolean) => {
@@ -107,25 +107,47 @@ const SingularFile = (props: SingularFileProps) => {
 
     return (
         <div className='px-4 py-2'>
-            <div className='border-black'>
-                <div className='flex justify-between'>
-                    <Input 
-                        type="text" id="filename" name="filename" placeholder="Filename with extenstion"
-                        className="p-4 w-full focus-visible:ring-offset-0"
-                        value={props.filename}
-                        onChange={(e) => handleFilenameUpdate(e)}
-                    />
+            <div>
+                { props.editable &&
+                    <div className='flex justify-between'>
+                        <Input 
+                            type="text" id="filename" name="filename" placeholder="Filename with extenstion"
+                            className="p-4 w-full focus-visible:ring-offset-0"
+                            value={props.filename}
+                            onChange={(e) => handleFilenameUpdate(e)}
+                        />
 
-                    { props.deleteable &&
-                        <Button 
-                            className="w-10 h-10 p-2"
-                            variant={"destructive"}
-                            onClick={() => props.deleteFile(props.index)}
->
-                            <Trash2 />
-                        </Button>
-                    }
-                </div>
+                        { props.deleteable &&
+                            <Button 
+                                className="w-10 h-10 p-2"
+                                variant={"destructive"}
+                                onClick={() => props.deleteFile(props.index)}
+                            >
+                                <Trash2 />
+                            </Button>
+                        }
+                    </div>
+                }
+
+                { !props.editable &&
+                    <div className='flex justify-between'>
+                        <h1 className='text-lg py-2'>{ props.filename }</h1>
+                        <div>
+                            <Button
+                                variant={'outline'}
+                                className='p-2 w-10 h-10'
+                            >
+                                <Copy />
+                            </Button>
+                            <Button
+                                variant={'outline'}
+                                className='p-2 w-10 h-10'
+                            >
+                                <Download />
+                            </Button>
+                        </div>
+                    </div>
+                }
             </div>
 
             <div className='h-80'>
