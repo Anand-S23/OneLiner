@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+export type FilesType = {
+    [key: string]: string
+}
+
 export const RegisterSchema = z
     .object({
         email: z
@@ -39,19 +43,25 @@ export interface UserLoginResult {
     User_ID: string;
 }
 
-export const CreateRepoSchema = z.
-    object({
-        name: z
-            .string({ required_error: 'Repo name is required' })
-            .min(1, { message: 'Repo name is required'})
-            .trim(),
-        description: z
-            .string({ required_error: 'Repo name is required' })
-            .min(1, { message: 'Repo name is required'})
-            .trim()
-})
+export const RepoNameSchema = z
+    .string({ required_error: 'Repo name is required' })
+    .min(1, { message: 'Repo name is required'})
+    .trim()
 
-export type FilesType = {
-    [key: string]: string
-}
+export type TRepoNameSchema = z.infer<typeof RepoNameSchema>;
+
+export const RepoDescriptionSchema = z
+    .string()
+    .max(100, { message: 'Repo description cannot exceed 100 characters'})
+    .trim()
+
+export type TRepoDescriptionSchema = z.infer<typeof RepoDescriptionSchema>;
+
+export const CreateRepoSchema = z
+    .object({
+        name: RepoNameSchema,
+        description: RepoDescriptionSchema
+    });
+
+export type TCreateRepoSchema = z.infer<typeof CreateRepoSchema>;
 
