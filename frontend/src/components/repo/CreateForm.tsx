@@ -180,6 +180,8 @@ const CreateForm = () => {
                         return (
                             <SingularFile
                                 key={index}
+                                filename=''
+                                editorValue=''
                                 index={index}
                                 deleteable={files.length > 1}
                                 setFilename={updateFilename}

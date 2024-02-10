@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChangeEvent, MutableRefObject, useRef, useState } from 'react';
 import { Trash2 } from 'lucide-react';
+import { getFileExtension } from '@/lib/utils';
 
 const options: monaco.editor.IStandaloneEditorConstructionOptions = {
     autoIndent: 'full',
@@ -30,6 +31,11 @@ const options: monaco.editor.IStandaloneEditorConstructionOptions = {
 };
 
 interface SingularFileProps {
+    // Content
+    filename: string;
+    editorValue: string;
+
+    // Functionality
     index: number;
     deleteable: boolean;
     setFilename: (index: number, filename: string) => void;
@@ -69,7 +75,7 @@ const SingularFile = (props: SingularFileProps) => {
     function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, _monaco: Monaco) {
         editorRef.current = editor;                                                                                                                                                                                        
         props.setEditorRef(props.index, editorRef);
-     }
+    }
 
     const changeEditorLanguage = (language: string) => {
         let model = editorRef.current?.getModel();
@@ -80,22 +86,17 @@ const SingularFile = (props: SingularFileProps) => {
     }
 
     const handleFilenameUpdate = (e: ChangeEvent<HTMLInputElement>) => {
-        let filename = e.target.value;
-
-        var nameArr = filename.trim().split(".");
-        let extenstion = "";
-        if (nameArr[0] !== "" && nameArr.length === 2)  {
-            extenstion = nameArr.pop() ?? "";
-        }
+        let filename = e.target.value.trim();
+        let extenstion = getFileExtension(filename);
 
         if (ext !== extenstion) {
             const detectedLanguage = LanguageMap[extenstion] ?? "none";
             changeEditorLanguage(detectedLanguage);
             setExt(extenstion);
-            console.log(detectedLanguage);
+            console.log(detectedLanguage); // TODO: For debugging need to remove
         }
 
-        props.setFilename(props.index, e.target.value);
+        props.setFilename(props.index, filename);
     }
 
     return (
@@ -123,8 +124,8 @@ const SingularFile = (props: SingularFileProps) => {
             <div className='h-80'>
                 <Editor 
                     height="100%" 
-                    defaultLanguage="none"
-                    defaultValue="" 
+                    defaultLanguage={LanguageMap[getFileExtension(props.filename)] ?? "none"}
+                    defaultValue={props.editorValue}
                     theme="vs-dark"
                     options={options}
                     onMount={handleEditorDidMount}
