@@ -1,7 +1,23 @@
+import { MutableRefObject } from 'react';
 import { z } from 'zod';
+import * as monaco from 'monaco-editor';
 
 export type FilesType = {
     [key: string]: string
+}
+
+export interface Post {
+    id: string,
+    name: string
+    description: string,
+    files: FilesType,
+    userID: string,
+    createdAt: Date
+}
+
+export interface FileDetails {
+    name: string;
+    editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null> | null;
 }
 
 export const RegisterSchema = z

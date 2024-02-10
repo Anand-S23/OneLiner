@@ -12,37 +12,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (c *Controller) UploadFile(w http.ResponseWriter, r *http.Request) error {
-    err := r.ParseMultipartForm(50 << 20)
-	if err != nil {
-        log.Print(err)
-        return BadRequestError(w, "Unable to parse form")
-	}
-
-    file, _, err := r.FormFile("file")
-	if err != nil {
-        log.Print(err)
-        return BadRequestError(w, "Unable to retrieve file")
-	}
-	defer file.Close()
-
-    fileID := models.NewUUID()
-	err = c.store.UploadFileToS3(file, fileID)
-	if err != nil {
-        log.Printf("Unable to upload file to s3 bucket: %s\n", err)
-        errMsg := ErrorMessage("Unable to upload file")
-        return WriteJSON(w, http.StatusInternalServerError, errMsg)
-	}
-
-    successMsg := map[string]string {
-        "message": "User created successfully",
-        "fileID": fileID,
-    }
-
-    log.Println("File uploaded successfully to blob storage")
-    return WriteJSON(w, http.StatusOK, successMsg)
-}
-
 func (c *Controller) UploadFiles(w http.ResponseWriter, r *http.Request) error {
     err := r.ParseMultipartForm(50 << 20)
 	if err != nil {
@@ -96,6 +65,28 @@ func (c *Controller) UploadFiles(w http.ResponseWriter, r *http.Request) error {
 
     log.Println("Files uploaded successfully to blob storage")
     return WriteJSON(w, http.StatusOK, uploadedFiles)
+}
+
+func (c *Controller) GetFiles(w http.ResponseWriter, r *http.Request) error {
+    var inputData map[string]string
+    err := json.NewDecoder(r.Body).Decode(&inputData)
+    if err != nil {
+        return BadRequestError(w, "Could not parse post data")
+    }
+
+    outputData := make(map[string]string)
+    for key, value := range inputData {
+        content, err := c.store.GetFileContentFromS3(value)
+        if err != nil {
+            log.Printf("Could not get %s: %s", key, err)
+            return InternalServerError(w)
+        }
+
+        outputData[key] = content
+    }
+
+    log.Printf("Got file content from s3 for all files")
+    return WriteJSON(w, http.StatusOK, outputData)
 }
 
 func (c *Controller) GetPostsForCurrentUser(w http.ResponseWriter, r *http.Request) error {

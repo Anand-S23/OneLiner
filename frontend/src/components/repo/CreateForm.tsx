@@ -5,20 +5,14 @@ import SingularFile from './SingularFile';
 import * as monaco from 'monaco-editor';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Plus, Upload } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { CREATE_REPO_ENDPOINT, UPLOAD_FILES_ENDPOINT } from '@/lib/consts';
-import { CreateRepoSchema, FilesType, RepoDescriptionSchema, RepoNameSchema, TCreateRepoSchema } from '@/lib/types';
+import { CreateRepoSchema, FileDetails, FilesType, TCreateRepoSchema } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { cn } from '@/lib/utils';
 import { useToast } from '../ui/use-toast';
 
-
-interface FileDetails {
-    name: string;
-    editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null> | null;
-    error: string;
-}
 
 const CreateForm = () => {
     const {
@@ -34,7 +28,7 @@ const CreateForm = () => {
     const { toast } = useToast();
 
     const [files, setFiles] = useState<Array<FileDetails>>([
-        { name: '', editorRef: null, error: ''}]
+        { name: '', editorRef: null }]
     );
 
     const addNewFile = (e: FormEvent) => {
@@ -45,7 +39,7 @@ const CreateForm = () => {
         }
 
         const newFile: FileDetails = { 
-            name: '', editorRef: null, error: ''
+            name: '', editorRef: null
         };
         setFiles((prevFiles) => [...prevFiles, newFile]);
     }
@@ -185,6 +179,7 @@ const CreateForm = () => {
                                     editorValue=''
                                     index={index}
                                     deleteable={files.length > 1}
+                                    editable={true}
                                     setFilename={updateFilename}
                                     setEditorRef={updateEditorRef}
                                     deleteFile={deleteFile}

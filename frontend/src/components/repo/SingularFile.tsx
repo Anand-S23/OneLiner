@@ -8,27 +8,32 @@ import { ChangeEvent, MutableRefObject, useRef, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { getFileExtension } from '@/lib/utils';
 
-const options: monaco.editor.IStandaloneEditorConstructionOptions = {
-    autoIndent: 'full',
-    contextmenu: false,
-    fontFamily: 'monospace',
-    fontSize: 14,
-    lineHeight: 24,
-    hideCursorInOverviewRuler: true,
-    matchBrackets: 'always',
-    minimap: {
-        enabled: false,
-    },
-    scrollbar: {
-        horizontalSliderSize: 4,
-        verticalSliderSize: 18,
-    },
-    selectOnLineNumbers: true,
-    roundedSelection: false,
-    readOnly: false,
-    cursorStyle: 'line',
-    automaticLayout: true,
-};
+const getOptions = (editable: boolean) => {
+    const options: monaco.editor.IStandaloneEditorConstructionOptions = {
+        autoIndent: 'full',
+        contextmenu: false,
+        fontFamily: 'monospace',
+        fontSize: 14,
+        lineHeight: 24,
+        hideCursorInOverviewRuler: true,
+        matchBrackets: 'always',
+        minimap: {
+            enabled: false,
+        },
+        scrollbar: {
+            horizontalSliderSize: 4,
+            verticalSliderSize: 18,
+        },
+        selectOnLineNumbers: true,
+        roundedSelection: false,
+        readOnly: (!editable),
+        domReadOnly: (!editable),
+        cursorStyle: 'line',
+        automaticLayout: true,
+    };
+
+    return options;
+}
 
 interface SingularFileProps {
     // Content
@@ -38,6 +43,7 @@ interface SingularFileProps {
     // Functionality
     index: number;
     deleteable: boolean;
+    editable: boolean;
     setFilename: (index: number, filename: string) => void;
     setEditorRef: (index: number, editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>) => void;
     deleteFile: (index: number) => void;
@@ -106,6 +112,7 @@ const SingularFile = (props: SingularFileProps) => {
                     <Input 
                         type="text" id="filename" name="filename" placeholder="Filename with extenstion"
                         className="p-4 w-full focus-visible:ring-offset-0"
+                        value={props.filename}
                         onChange={(e) => handleFilenameUpdate(e)}
                     />
 
@@ -127,7 +134,7 @@ const SingularFile = (props: SingularFileProps) => {
                     defaultLanguage={LanguageMap[getFileExtension(props.filename)] ?? "none"}
                     defaultValue={props.editorValue}
                     theme="vs-dark"
-                    options={options}
+                    options={getOptions(props.editable)}
                     onMount={handleEditorDidMount}
                 />
             </div>

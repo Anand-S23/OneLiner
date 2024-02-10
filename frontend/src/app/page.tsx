@@ -2,18 +2,9 @@
 
 import RepoCard from '@/components/repo/RepoCard';
 import { POSTS_ENDPOINT } from '@/lib/consts';
-import { FilesType } from '@/lib/types';
+import { Post } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-interface Post {
-    id: string,
-    name: string
-    description: string,
-    files: FilesType,
-    userID: string,
-    createdAt: Date
-}
 
 export default function Home() {
     const router = useRouter();

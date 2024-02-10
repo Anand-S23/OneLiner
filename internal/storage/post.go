@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"log"
@@ -22,6 +23,26 @@ func (store *SnippetStore) UploadFileToS3(file io.Reader, key string) error {
 	})
 
     return err
+}
+
+func (store *SnippetStore) GetFileContentFromS3(fileID string) (string, error) {
+    result, err := store.s3.Client.GetObject(context.TODO(), &s3.GetObjectInput{
+        Bucket: store.s3.BucketName,
+        Key:    aws.String(fileID),
+    });
+    if err != nil {
+        return "", err
+    }
+    defer result.Body.Close()
+
+    buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(result.Body)
+	if err != nil {
+        return "", err
+	}
+
+	content := buf.String()
+    return content, nil
 }
 
 func (store *SnippetStore) PutPost(post models.Post) error {
