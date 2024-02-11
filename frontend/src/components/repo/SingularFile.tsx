@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { ChangeEvent, MutableRefObject, useRef, useState } from 'react';
 import { Copy, Download, Trash2 } from 'lucide-react';
 import { getFileExtension } from '@/lib/utils';
+import { copyFile } from 'fs';
+import { useToast } from '../ui/use-toast';
 
 const getOptions = (editable: boolean) => {
     const options: monaco.editor.IStandaloneEditorConstructionOptions = {
@@ -77,6 +79,8 @@ const LanguageMap: LanguageMapType = {
 const SingularFile = (props: SingularFileProps) => {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [ext, setExt] = useState<string>('');
+    
+    const { toast } = useToast();
 
     function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, _monaco: Monaco) {
         editorRef.current = editor;                                                                                                                                                                                        
@@ -103,6 +107,23 @@ const SingularFile = (props: SingularFileProps) => {
         }
 
         props.setFilename(props.index, filename);
+    }
+
+    const copyContent = () => {
+        let fileContent = editorRef.current?.getValue() ?? "";
+        navigator.clipboard.writeText(fileContent);
+        toast({ description: "File content copied to clipboard." });
+    }
+
+    const downloadFile = () => {
+        let fileContent = editorRef.current?.getValue() ?? "";
+        const blob = new Blob([fileContent], { type: 'application/octet-stream' });
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = props.filename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
     }
 
     return (
@@ -136,12 +157,14 @@ const SingularFile = (props: SingularFileProps) => {
                             <Button
                                 variant={'outline'}
                                 className='p-2 w-10 h-10'
+                                onClick={copyContent}
                             >
                                 <Copy />
                             </Button>
                             <Button
                                 variant={'outline'}
                                 className='p-2 w-10 h-10'
+                                onClick={downloadFile}
                             >
                                 <Download />
                             </Button>
