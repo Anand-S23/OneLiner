@@ -123,6 +123,7 @@ func (c *Controller) CreatePost(w http.ResponseWriter, r *http.Request) error {
 
     successMsg := map[string]string {
         "message": "Post created successfully",
+        "id": post.ID,
     }
     log.Println("Post created successfully")
     return WriteJSON(w, http.StatusOK, successMsg)

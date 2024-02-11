@@ -9,7 +9,6 @@ import SingularFile from "@/components/repo/SingularFile";
 
 function Read({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const [post, setPost] = useState<Post | null> (null);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
     const [fileContent, setFileContent] = useState<FilesType>({});
@@ -28,7 +27,6 @@ function Read({ params }: { params: { id: string } }) {
             }
 
             const data: Post = await response.json() as Post;
-            setPost(data);
 
             const getFilesResponse = await fetch(GET_FILES_ENDPOINT, {
                 method: "POST",
@@ -45,12 +43,11 @@ function Read({ params }: { params: { id: string } }) {
             const filesContent: FilesType = await getFilesResponse.json();
             setFileContent(filesContent);
 
+            let updateFiles: Array<FileDetails> = [];
             for (let key in filesContent) {
-                console.log(key);
-                setFiles([...files, {
-                    name: key, editorRef: null
-                }]);
+                updateFiles.push({name: key, editorRef: null});
             }
+            setFiles(updateFiles);
 
             setIsLoaded(true);
         }
@@ -69,7 +66,7 @@ function Read({ params }: { params: { id: string } }) {
     }
 
     return (
-        <div>
+        <div className='px-40'>
             { files.map((file, index) => {
                 return (
                     <SingularFile

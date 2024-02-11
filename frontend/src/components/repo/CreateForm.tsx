@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { cn } from '@/lib/utils';
 import { useToast } from '../ui/use-toast';
+import { useRouter } from 'next/navigation';
 
 
 const CreateForm = () => {
@@ -26,6 +27,7 @@ const CreateForm = () => {
     });
 
     const { toast } = useToast();
+    const router = useRouter();
 
     const [files, setFiles] = useState<Array<FileDetails>>([
         { name: '', editorRef: null }]
@@ -91,6 +93,9 @@ const CreateForm = () => {
             formData.append("files", file);
         }
 
+        console.log(formData.getAll("files"));
+        console.log(formData.getAll("files").length);
+
          const uploadResponse = await fetch(UPLOAD_FILES_ENDPOINT, {
             method: "POST",
             mode: "cors",
@@ -139,7 +144,11 @@ const CreateForm = () => {
             return;
         }
 
-        console.log(createResponseData);
+        if (createResponseData.id) {
+            router.push(`/repo/${createResponseData.id}`);
+        } else {
+            router.push('/');
+        }
     };
 
     return (

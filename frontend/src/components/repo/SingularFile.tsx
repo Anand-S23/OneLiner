@@ -134,7 +134,6 @@ const SingularFile = (props: SingularFileProps) => {
                         <Input 
                             type="text" id="filename" name="filename" placeholder="Filename with extenstion"
                             className="p-4 w-full focus-visible:ring-offset-0"
-                            value={props.filename}
                             onChange={(e) => handleFilenameUpdate(e)}
                         />
 
