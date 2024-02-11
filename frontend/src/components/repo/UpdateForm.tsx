@@ -1,27 +1,31 @@
 'use client';
 
-import { FormEvent, MutableRefObject, useState } from 'react';
+import { FormEvent, MutableRefObject, useEffect, useState } from 'react';
 import SingularFile from './SingularFile';
 import * as monaco from 'monaco-editor';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Plus } from 'lucide-react';
-import { CREATE_REPO_ENDPOINT, UPLOAD_FILES_ENDPOINT } from '@/lib/consts';
-import { CreateRepoSchema, FileDetails, FilesType, TCreateRepoSchema } from '@/lib/types';
+import { GET_FILES_ENDPOINT, READ_REPO_ENDPOINT, UPDATE_REPO_ENDPOINT, UPLOAD_FILES_ENDPOINT } from '@/lib/consts';
+import { CreateRepoSchema, FileDetails, FilesType, Post, TCreateRepoSchema } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { cn } from '@/lib/utils';
 import { useToast } from '../ui/use-toast';
 import { useRouter } from 'next/navigation';
 
+interface UpdateFormProps {
+    repoID: string;
+}
 
-const CreateForm = () => {
+const UpdateForm = (props: UpdateFormProps) => {
     const {
         register,
         handleSubmit,
         formState: { errors },
         setError,
-        clearErrors
+        clearErrors,
+        setValue
     } = useForm<TCreateRepoSchema>({
         resolver: zodResolver(CreateRepoSchema),
     });
@@ -29,9 +33,54 @@ const CreateForm = () => {
     const { toast } = useToast();
     const router = useRouter();
 
-    const [files, setFiles] = useState<Array<FileDetails>>([
-        { name: '', editorRef: null }]
-    );
+    const [repo, setRepo] = useState<Post | null>(null);
+    const [files, setFiles] = useState<Array<FileDetails>>([]);
+    const [fileContent, setFileContent] = useState<FilesType>({});
+
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
+
+    useEffect(() => {
+        const getPost = async () => {
+            const response = await fetch(READ_REPO_ENDPOINT + props.repoID, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            if (!response.ok) {
+                router.push('/404');
+                return;
+            }
+
+            const data: Post = await response.json() as Post;
+            setValue('name', data.name);
+            setValue('description', data.description);
+
+            const getFilesResponse = await fetch(GET_FILES_ENDPOINT, {
+                method: "POST",
+                mode: 'cors',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data.files)
+            });
+
+            if (!getFilesResponse.ok) {
+                // TODO: Error handling
+                return;
+            }
+
+            const filesContent: FilesType = await getFilesResponse.json();
+            setFileContent(filesContent);
+
+            let updateFiles: Array<FileDetails> = [];
+            for (let key in filesContent) {
+                updateFiles.push({name: key, editorRef: null});
+            }
+            setFiles(updateFiles);
+
+            setIsLoaded(true);
+        }
+
+        getPost();
+    }, []);
 
     const addNewFile = (e: FormEvent) => {
         e.preventDefault();
@@ -116,23 +165,23 @@ const CreateForm = () => {
         }
         const uploadFilesReponse = await uploadResponse.json() as FilesType;
 
-        const createData = {
+        const updateData = {
             name: data.name,
             description: data.description,
             files: uploadFilesReponse,
         }
 
-         const createResponse = await fetch(CREATE_REPO_ENDPOINT, {
+         const updateResponse = await fetch(UPDATE_REPO_ENDPOINT + props.repoID, {
             method: "POST",
             mode: "cors",
-            body: JSON.stringify(createData),
+            body: JSON.stringify(updateData),
             headers: { "Content-Type": "application/json" },
             credentials: 'include'
         });
 
-        const createResponseData = await createResponse.json();
+        const updateResponseData = await updateResponse.json();
 
-        if (!createResponse.ok) {
+        if (!updateResponse.ok) {
             toast({
                 title: "Uh oh! Something went wrong.",
                 description: "There was a problem with your request.",
@@ -141,12 +190,13 @@ const CreateForm = () => {
             return;
         }
 
-        if (createResponseData.id) {
-            router.push(`/repo/view/${createResponseData.id}`);
-        } else {
-            router.push('/');
-        }
+        // TODO: Delete old files
+        router.push(`/repo/view/${props.repoID}`);
     };
+
+    if (!isLoaded) {
+        return <></>;
+    }
 
     return (
         <div className='sm:px-5 md:px-12 lg:px-40'>
@@ -177,12 +227,12 @@ const CreateForm = () => {
 
                 <div>
                     <div className={errors.root ? 'border border-red-500 mt-2' : ''}>
-                        { files.map((_, index) => {
+                        { files.map((file, index) => {
                             return (
                                 <SingularFile
                                     key={index}
-                                    filename=''
-                                    editorValue=''
+                                    filename={file.name}
+                                    editorValue={fileContent[file.name]}
                                     index={index}
                                     deleteable={files.length > 1}
                                     editable={true}
@@ -217,5 +267,5 @@ const CreateForm = () => {
     );
 };
 
-export default CreateForm;
+export default UpdateForm;
 

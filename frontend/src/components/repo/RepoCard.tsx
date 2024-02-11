@@ -20,7 +20,7 @@ const RepoCard = (props: RepoCardProps) => {
                 <div className='flex justify-between'>
                     <div
                         className='hover:cursor-pointer flex'
-                        onClick={() => router.push(`/repo/${props.repoID}`)}
+                        onClick={() => router.push(`/repo/view/${props.repoID}`)}
                     >
                         <Code className="mt-1"/>
                         <p className="text-blue-500 text-2xl px-2">{props.name}</p>

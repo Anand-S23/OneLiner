@@ -66,7 +66,8 @@ function Read({ params }: { params: { id: string } }) {
     }
 
     return (
-        <div className='px-40'>
+
+        <div className='sm:px-5 md:px-12 lg:px-40'>
             { files.map((file, index) => {
                 return (
                     <SingularFile

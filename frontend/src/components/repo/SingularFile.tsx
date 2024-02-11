@@ -4,7 +4,7 @@ import Editor, { Monaco } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChangeEvent, MutableRefObject, useRef, useState } from 'react';
+import { ChangeEvent, MutableRefObject, useEffect, useRef, useState } from 'react';
 import { Copy, Download, Trash2 } from 'lucide-react';
 import { getFileExtension } from '@/lib/utils';
 import { copyFile } from 'fs';
@@ -37,20 +37,6 @@ const getOptions = (editable: boolean) => {
     return options;
 }
 
-interface SingularFileProps {
-    // Content
-    filename: string;
-    editorValue: string;
-
-    // Functionality
-    index: number;
-    deleteable: boolean;
-    editable: boolean;
-    setFilename: (index: number, filename: string) => void;
-    setEditorRef: (index: number, editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>) => void;
-    deleteFile: (index: number) => void;
-}
-
 type LanguageMapType = {
     [ext: string]: string
 }
@@ -74,6 +60,20 @@ const LanguageMap: LanguageMapType = {
     "go": "go",
     "java": "java",
     "lua": "lua",
+}
+
+interface SingularFileProps {
+    // Content
+    filename: string;
+    editorValue: string;
+
+    // Functionality
+    index: number;
+    deleteable: boolean;
+    editable: boolean;
+    setFilename: (index: number, filename: string) => void;
+    setEditorRef: (index: number, editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>) => void;
+    deleteFile: (index: number) => void;
 }
 
 const SingularFile = (props: SingularFileProps) => {
@@ -134,6 +134,7 @@ const SingularFile = (props: SingularFileProps) => {
                         <Input 
                             type="text" id="filename" name="filename" placeholder="Filename with extenstion"
                             className="p-4 w-full focus-visible:ring-offset-0"
+                            value={props.filename}
                             onChange={(e) => handleFilenameUpdate(e)}
                         />
 
