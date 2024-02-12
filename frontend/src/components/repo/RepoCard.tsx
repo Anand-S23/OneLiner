@@ -1,7 +1,7 @@
 'use client';
 
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
-import { Code, MoreVertical, Trash2 } from "lucide-react";
+import { Code, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
@@ -9,6 +9,7 @@ interface RepoCardProps {
     name: string;
     description: string;
     repoID: string;
+    deleteRepo: (repoID: string) => void;
 }
 
 const RepoCard = (props: RepoCardProps) => {
@@ -31,7 +32,15 @@ const RepoCard = (props: RepoCardProps) => {
                             <MoreVertical />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => router.push(`/repo/update/${props.repoID}`)}
+                            >
+                                <Pencil />
+                                Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => props.deleteRepo(props.repoID)}
+                            >
                                 <Trash2 />
                                 Delete
                             </DropdownMenuItem>

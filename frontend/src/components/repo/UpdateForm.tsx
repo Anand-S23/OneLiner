@@ -38,6 +38,7 @@ const UpdateForm = (props: UpdateFormProps) => {
     const [fileContent, setFileContent] = useState<FilesType>({});
 
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
+    const [refresh, doRefresh] = useState(0);
 
     useEffect(() => {
         const getPost = async () => {
@@ -75,8 +76,8 @@ const UpdateForm = (props: UpdateFormProps) => {
                 updateFiles.push({name: key, editorRef: null});
             }
             setFiles(updateFiles);
-
             setIsLoaded(true);
+            doRefresh(prev => prev + 1);
         }
 
         getPost();
@@ -103,6 +104,7 @@ const UpdateForm = (props: UpdateFormProps) => {
     }
 
     const updateEditorRef = (index: number, ref: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>) => {
+        console.log("Editor Ref Set");
         let updateFiles = [...files];
         updateFiles[index].editorRef = ref;
         setFiles(updateFiles);
@@ -123,6 +125,7 @@ const UpdateForm = (props: UpdateFormProps) => {
             const filename = files[i].name.trim();
 
             if (editorData === "" || filename === "") {
+                console.log("filename", filename, "editorData", editorData);
                 setError("root", {
                     type: "value", 
                     message: "All filenames must be set and no snippet should be empty"
@@ -239,6 +242,7 @@ const UpdateForm = (props: UpdateFormProps) => {
                                     setFilename={updateFilename}
                                     setEditorRef={updateEditorRef}
                                     deleteFile={deleteFile}
+                                    refresh={refresh}
                                 />
                             );
                         })}

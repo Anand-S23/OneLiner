@@ -71,6 +71,7 @@ interface SingularFileProps {
     index: number;
     deleteable: boolean;
     editable: boolean;
+    refresh?: number;
     setFilename: (index: number, filename: string) => void;
     setEditorRef: (index: number, editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>) => void;
     deleteFile: (index: number) => void;
@@ -81,6 +82,10 @@ const SingularFile = (props: SingularFileProps) => {
     const [ext, setExt] = useState<string>('');
     
     const { toast } = useToast();
+
+    useEffect(() => {
+        props.setEditorRef(props.index, editorRef);
+    }, [props.refresh])
 
     function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, _monaco: Monaco) {
         editorRef.current = editor;                                                                                                                                                                                        
