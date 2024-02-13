@@ -92,3 +92,8 @@ func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) error {
     return WriteJSON(w, http.StatusOK, "")
 }
 
+func (c *Controller) GetAuthUserID(w http.ResponseWriter, r *http.Request) error {
+    currentUserID := r.Context().Value("user_id").(string)
+    return WriteJSON(w, http.StatusOK, currentUserID)
+}
+

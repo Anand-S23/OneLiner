@@ -78,6 +78,7 @@ const UpdateForm = (props: UpdateFormProps) => {
             setFiles(updateFiles);
             setIsLoaded(true);
             doRefresh(prev => prev + 1);
+            console.log("Loaded everything");
         }
 
         getPost();

@@ -1,10 +1,18 @@
 'use client';
 
 import RegisterForm from "@/components/auth/RegisterForm";
+import StaticNavbar from "@/components/ui/static-navbar";
 
 function Register() {
     return (
-        <RegisterForm />
+        <>
+            <StaticNavbar
+                text="Login"
+                redirect="/login"
+            />
+
+            <RegisterForm />
+        </>
     );
 }
 

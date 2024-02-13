@@ -16,6 +16,7 @@ func NewRouter(c *controller.Controller) *mux.Router {
     router.HandleFunc("/register", HandleFunc(c.SignUp)).Methods("POST")
     router.HandleFunc("/login", HandleFunc(c.Login)).Methods("POST")
     router.HandleFunc("/logout", HandleFunc(c.Logout)).Methods("POST")
+    router.HandleFunc("/getAuthUserID", middleware.Authentication(HandleFunc(c.GetAuthUserID), c.JwtSecretKey, c.CookieSecret)).Methods("GET")
 
     // S3
     router.HandleFunc("/upload", middleware.Authentication(HandleFunc(c.UploadFiles), c.JwtSecretKey, c.CookieSecret)).Methods("POST")
