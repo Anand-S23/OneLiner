@@ -8,6 +8,7 @@ import { ChangeEvent, MutableRefObject, useEffect, useRef, useState } from 'reac
 import { Copy, Download, Trash2 } from 'lucide-react';
 import { getFileExtension } from '@/lib/utils';
 import { useToast } from '../ui/use-toast';
+import { LanguageMap } from '@/lib/languages';
 
 const getOptions = (editable: boolean) => {
     const options: monaco.editor.IStandaloneEditorConstructionOptions = {
@@ -34,31 +35,6 @@ const getOptions = (editable: boolean) => {
     };
 
     return options;
-}
-
-type LanguageMapType = {
-    [ext: string]: string
-}
-
-// TODO: Add more languages
-const LanguageMap: LanguageMapType = {
-    "js": "javascript",
-    "ts": "typescript",
-    "py": "python",
-    "c": "c",
-    "cpp": "cpp",
-    "bat": "bat",
-    "css": "css",
-    "scss": "scss",
-    "json": "json",
-    "html": "html",
-    "xml": "xml",
-    "php": "php",
-    "cs": "csharp",
-    "md": "markdown",
-    "go": "go",
-    "java": "java",
-    "lua": "lua",
 }
 
 interface SingularFileProps {
