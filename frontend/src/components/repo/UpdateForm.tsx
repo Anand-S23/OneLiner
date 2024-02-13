@@ -206,7 +206,6 @@ const UpdateForm = (props: UpdateFormProps) => {
             credentials: 'include'
         });
 
-        // TODO: Delete old files
         router.push(`/repo/view/${props.repoID}`);
     };
 

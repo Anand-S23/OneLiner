@@ -3,8 +3,8 @@
 import RepoCard from '@/components/repo/RepoCard';
 import Modal from '@/components/ui/modal';
 import { useToast } from '@/components/ui/use-toast';
-import { DELETE_REPO_ENDPOINT, POSTS_ENDPOINT } from '@/lib/consts';
-import { Post } from '@/lib/types';
+import { DELETE_FILES_ENDPOINT, DELETE_REPO_ENDPOINT, POSTS_ENDPOINT } from '@/lib/consts';
+import { FilesType, Post } from '@/lib/types';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,6 +15,8 @@ export default function Home() {
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [deleteID, setDeleteID] = useState<string>('');
+    const [files, setFiles] = useState<FilesType | null>(null);
+    const [user, setUser] = useState<string>('');
     const [refresh, setRefresh] = useState<boolean>(false);
 
     const { toast } = useToast();
@@ -47,9 +49,11 @@ export default function Home() {
         getPosts();
     }, [refresh]);
 
-    const startDeleteRepo = (repoID: string) => {
+    const startDeleteRepo = (repoID: string, files: FilesType, userID: string) => {
         console.log(repoID);
         setDeleteID(repoID);
+        setFiles(files);
+        setUser(userID);
         setShowModal(true);
     }
 
@@ -69,6 +73,19 @@ export default function Home() {
             toast({
                 title: "Uh oh! Something went wrong.",
                 description: "There was a problem with your request.",
+            });
+        } else {
+            const deleteData = {
+                userID: user,
+                files: files
+            }
+
+            await fetch(DELETE_FILES_ENDPOINT, {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify(deleteData),
+                headers: { "Content-Type": "application/json" },
+                credentials: 'include'
             });
         }
 
@@ -106,7 +123,7 @@ export default function Home() {
                                 name={post.name}
                                 description={post.description}
                                 repoID={post.id}
-                                deleteRepo={startDeleteRepo}
+                                deleteRepo={() => startDeleteRepo(post.id, post.files, post.userID)}
                             />
                         </div>
                     );

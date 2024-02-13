@@ -1,6 +1,6 @@
 'use client';
 
-import { AUTH_USER_ENDPOINT, DELETE_REPO_ENDPOINT, GET_FILES_ENDPOINT, READ_REPO_ENDPOINT } from "@/lib/consts";
+import { AUTH_USER_ENDPOINT, DELETE_FILES_ENDPOINT, DELETE_REPO_ENDPOINT, GET_FILES_ENDPOINT, READ_REPO_ENDPOINT } from "@/lib/consts";
 import { FileDetails, FilesType, Post } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { MutableRefObject, useEffect, useState } from "react";
@@ -35,6 +35,19 @@ function Read({ params }: { params: { id: string } }) {
             toast({
                 title: "Uh oh! Something went wrong.",
                 description: "There was a problem with your request.",
+            });
+        } else {
+            const deleteData = {
+                userID: repo?.userID,
+                files: repo?.files
+            }
+
+            await fetch(DELETE_FILES_ENDPOINT, {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify(deleteData),
+                headers: { "Content-Type": "application/json" },
+                credentials: 'include'
             });
         }
 
