@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"log"
@@ -22,6 +23,35 @@ func (store *SnippetStore) UploadFileToS3(file io.Reader, key string) error {
 	})
 
     return err
+}
+
+func (store *SnippetStore) DeleteFileFromS3(fileID string) error {
+    _, err := store.s3.Client.DeleteObject(context.TODO(), &s3.DeleteObjectInput {
+		Bucket: store.s3.BucketName,
+		Key:    aws.String(fileID),
+	})
+
+    return err
+}
+
+func (store *SnippetStore) GetFileContentFromS3(fileID string) (string, error) {
+    result, err := store.s3.Client.GetObject(context.TODO(), &s3.GetObjectInput{
+        Bucket: store.s3.BucketName,
+        Key:    aws.String(fileID),
+    });
+    if err != nil {
+        return "", err
+    }
+    defer result.Body.Close()
+
+    buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(result.Body)
+	if err != nil {
+        return "", err
+	}
+
+	content := buf.String()
+    return content, nil
 }
 
 func (store *SnippetStore) PutPost(post models.Post) error {
@@ -89,7 +119,6 @@ func (store *SnippetStore) GetPost(postSK string) models.Post {
 func (store *SnippetStore) GetPostsByUser(postPK string) ([]models.Post, error) {
     input := &dynamodb.QueryInput {
         TableName: store.tableName,
-        ConsistentRead: aws.Bool(true),
         KeyConditionExpression: aws.String("PK = :pk"),
         ExpressionAttributeValues: map[string]types.AttributeValue {
             ":pk": &types.AttributeValueMemberS{Value: postPK},

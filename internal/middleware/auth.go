@@ -3,47 +3,49 @@ package middleware
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/Anand-S23/Snippet/internal/controller"
+	"github.com/Anand-S23/Snippet/internal/models"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/securecookie"
 )
 
-func getUserFromResquest(r *http.Request, jwtSecretKey string) (string, error) {
-    cookie, err := r.Cookie("jwt")
-    if err != nil || cookie.Value == "" {
-        return "", errors.New("Invalid request, could not parse jwt cookie")
-    }
+func getUserFromResquest(r *http.Request, jwtSecretKey []byte, cookieSecret *securecookie.SecureCookie) (*models.Claims, error) {
+    tokenString, err := models.ParseCookie(r, cookieSecret, models.COOKIE_NAME)
+	if err != nil {
+        errMsg := fmt.Sprintf("Invalid request, could not parse cookie: %s", err)
+        return nil, errors.New(errMsg)
+	}
 
-    token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
-        return []byte(jwtSecretKey), nil
-    })
-    if err != nil || !token.Valid {
-        return "", errors.New("Invalid cookie, not able to parse token")
-    }
+	token, err := jwt.ParseWithClaims(tokenString, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecretKey, nil
+	})
+	if err != nil {
+        errMsg := fmt.Sprintf("Invalid cookie, could not parse token: %s", err)
+        return nil, errors.New(errMsg)
+	}
+    
+	claims, ok := token.Claims.(*models.Claims)
+	if !ok || !token.Valid {
+        return nil, errors.New("Invalid token, not able to parse claims")
+	}
 
-    claims, ok := token.Claims.(jwt.MapClaims)
-    if !ok {
-        return "", errors.New("Invalid token, not able to parse claims")
-    }
-
-    userID := claims["user_id"].(string)
-    return userID, nil
+    return claims, nil
 }
 
-func Authentication(next http.Handler, jwtSecretKey string) http.HandlerFunc {
+func Authentication(next http.Handler, jwtSecretKey []byte, cookieSecret *securecookie.SecureCookie) http.HandlerFunc {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        userID, err := getUserFromResquest(r, jwtSecretKey)
+        claims, err := getUserFromResquest(r, jwtSecretKey, cookieSecret)
         if err != nil {
-            errMsg := map[string]string {"error": "Unauthorized"}
-            controller.WriteJSON(w, http.StatusUnauthorized, errMsg)
             log.Println(err.Error())
-            // TODO: redirect
+            controller.UnauthorizedError(w)
             return
         }
         
-        ctx := context.WithValue(r.Context(), "user_id", userID)
+        ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
     })
 }

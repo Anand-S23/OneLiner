@@ -3,75 +3,137 @@ package controller
 import (
 	"encoding/json"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"sync"
 
 	"github.com/Anand-S23/Snippet/internal/models"
 	"github.com/Anand-S23/Snippet/internal/validators"
 	"github.com/gorilla/mux"
 )
 
-func (c *Controller) UploadFile(w http.ResponseWriter, r *http.Request) error {
+func (c *Controller) UploadFiles(w http.ResponseWriter, r *http.Request) error {
     err := r.ParseMultipartForm(50 << 20)
 	if err != nil {
-        errMsg := map[string]string {
-            "error": "Unable to parse form",
-        }
         log.Print(err)
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
+        return BadRequestError(w, "Unable to parse form")
 	}
 
-    file, _, err := r.FormFile("file")
-	if err != nil {
-        errMsg := map[string]string {
-            "error": "Unable to retrieve file",
-        }
-        log.Print(err)
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
-	}
-	defer file.Close()
-
-    fileID := models.NewUUID()
-	err = c.store.UploadFileToS3(file, fileID)
-	if err != nil {
-        errMsg := map[string]string {
-            "error": "Unable to upload file",
-        }
-        log.Printf("Unable to upload file to s3 bucket: %s\n", err)
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
-	}
-
-    successMsg := map[string]string {
-        "message": "User created successfully",
-        "fileID": fileID,
+    files := r.MultipartForm.File["files"]
+    err = validators.UploadValidator(files)
+    if err != nil {
+        return BadRequestError(w, err.Error())
     }
 
-    log.Println("File uploaded successfully to blob storage")
+    var wg sync.WaitGroup
+    var mu sync.Mutex
+    uploadedFiles := make(map[string]string)
+
+    for _, fileHeader := range files {
+        wg.Add(1)
+
+        go func(fileHeader *multipart.FileHeader) {
+            defer wg.Done()
+
+            file, err := fileHeader.Open()
+            if err != nil {
+                log.Println("Error opening file:", err)
+                return
+            }
+            defer file.Close()
+
+            fileID := models.NewUUID()
+            err = c.store.UploadFileToS3(file, fileID)
+            if err != nil {
+                log.Printf("Unable to upload file to s3 bucket: %s\n", err)
+                return
+            }
+
+            mu.Lock()
+            uploadedFiles[fileHeader.Filename] = fileID
+            mu.Unlock()
+        }(fileHeader)
+    }
+
+    wg.Wait()
+
+    if len(uploadedFiles) != len(files) {
+        // TODO: Delete rest of files from s3?
+        log.Printf("%d of %d files uploaded to S3", len(uploadedFiles), len(files))
+        return InternalServerError(w)
+    }
+
+    log.Println("Files uploaded successfully to blob storage")
+    return WriteJSON(w, http.StatusOK, uploadedFiles)
+}
+
+func (c *Controller) GetFiles(w http.ResponseWriter, r *http.Request) error {
+    var inputData map[string]string
+    err := json.NewDecoder(r.Body).Decode(&inputData)
+    if err != nil {
+        return BadRequestError(w, "Could not parse post data")
+    }
+
+    outputData := make(map[string]string)
+    for key, value := range inputData {
+        content, err := c.store.GetFileContentFromS3(value)
+        if err != nil {
+            log.Printf("Could not get %s: %s", key, err)
+            return InternalServerError(w)
+        }
+
+        outputData[key] = content
+    }
+
+    log.Printf("Got file content from s3 for all files")
+    return WriteJSON(w, http.StatusOK, outputData)
+}
+
+func (c *Controller) DeleteFiles(w http.ResponseWriter, r *http.Request) error {
+    currentUserID := r.Context().Value("user_id").(string)
+
+    var inputData models.DeleteFilesDto
+    err := json.NewDecoder(r.Body).Decode(&inputData)
+    if err != nil {
+        return BadRequestError(w, "Could not parse post data")
+    }
+
+    if currentUserID != inputData.UserID {
+        return UnauthorizedError(w)
+    }
+
+    for _, fileID := range inputData.Files {
+        err = c.store.DeleteFileFromS3(fileID)
+        if err != nil {
+            log.Printf("Could not delete file %s: %s", fileID, err)
+        }
+    }
+
+    successMsg := map[string]string {
+        "message": "Files deleted potentially removed from blob storage",
+    }
+    log.Println("Files deleted potentially removed from blob storage")
     return WriteJSON(w, http.StatusOK, successMsg)
 }
 
+
 func (c *Controller) GetPostsForCurrentUser(w http.ResponseWriter, r *http.Request) error {
     currentUserID := r.Context().Value("user_id").(string)
-    posts, err := c.store.GetPostsByUser(currentUserID)
+    posts, err := c.store.GetPostsByUser(models.NewPostRecordPK(currentUserID))
     if err != nil {
         log.Printf("Could not get posts for %s user: %s", currentUserID, err)
         return InternalServerError(w)
     }
 
-    successMsg := map[string][]models.Post {
-        "posts": posts,
-    }
-    log.Printf("Retrived posts for %s successfully", currentUserID)
-    return WriteJSON(w, http.StatusOK, successMsg)
+    log.Printf("Retrived %d posts for %s user successfully", len(posts), currentUserID)
+    return WriteJSON(w, http.StatusOK, posts)
 }
 
 func (c *Controller) CreatePost(w http.ResponseWriter, r *http.Request) error {
     var postData models.PostDto
     err := json.NewDecoder(r.Body).Decode(&postData)
     if err != nil {
-        errMsg := map[string]string {
-            "error": "Could not parse post data",
-        }
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
+        return BadRequestError(w, "Could not parse post data")
     }
 
     postErrs := validators.PostValidator(postData, c.store)
@@ -89,13 +151,14 @@ func (c *Controller) CreatePost(w http.ResponseWriter, r *http.Request) error {
 
     successMsg := map[string]string {
         "message": "Post created successfully",
+        "id": post.ID,
     }
     log.Println("Post created successfully")
     return WriteJSON(w, http.StatusOK, successMsg)
 }
 
 func (c *Controller) ReadPost(w http.ResponseWriter, r *http.Request) error {
-    errMsg := map[string]string {"error": "Invalid Post ID"}
+    errMsg := ErrorMessage("Invalid Post ID")
 
     vars := mux.Vars(r)
     postID, ok := vars["id"]
@@ -106,7 +169,7 @@ func (c *Controller) ReadPost(w http.ResponseWriter, r *http.Request) error {
     post := c.store.GetPost(models.NewPostRecordSK(postID))
     if post.ID == "" {
         log.Printf("Could not get post with sk %s\n", models.NewPostRecordSK(postID))
-        return WriteJSON(w, http.StatusNotFound, errMsg)
+        return PageNotFoundError(w)
     }
 
     log.Printf("Returning infromation about post with id %s\n", post.ID)
@@ -119,30 +182,24 @@ func (c *Controller) UpdatePost(w http.ResponseWriter, r *http.Request) error {
     vars := mux.Vars(r)
     postID, ok := vars["id"]
     if !ok {
-        errMsg := map[string]string {"error": "Invalid Post ID"}
-        return WriteJSON(w, http.StatusNotFound, errMsg)
+        return PageNotFoundError(w)
     }
 
     post := c.store.GetPost(models.NewPostRecordSK(postID))
     if post.ID == "" {
-        errMsg := map[string]string {"error": "Invalid Post ID"}
         log.Printf("Could not get post with sk %s\n", models.NewPostRecordSK(postID))
-        return WriteJSON(w, http.StatusNotFound, errMsg)
+        return PageNotFoundError(w)
     }
 
     if post.UserID != currentUserID {
-        errMsg := map[string]string {"error": "Unauthorized"}
         log.Printf("%s is trying to delete post by %s", post.ID, currentUserID)
-        return WriteJSON(w, http.StatusUnauthorized, errMsg)
+        return UnauthorizedError(w)
     }
 
     var postData models.PostDto
     err := json.NewDecoder(r.Body).Decode(&postData)
     if err != nil {
-        errMsg := map[string]string {
-            "error": "Could not parse post data",
-        }
-        return WriteJSON(w, http.StatusBadRequest, errMsg)
+        return BadRequestError(w, "Could not parse post data")
     }
 
     postErrs := validators.PostValidator(postData, c.store)
@@ -173,21 +230,18 @@ func (c *Controller) DeletePost(w http.ResponseWriter, r *http.Request) error {
     vars := mux.Vars(r)
     postID, ok := vars["id"]
     if !ok {
-        errMsg := map[string]string {"error": "Invalid Post ID"}
-        return WriteJSON(w, http.StatusNotFound, errMsg)
+        return PageNotFoundError(w)
     }
 
     post := c.store.GetPost(models.NewPostRecordSK(postID))
     if post.ID == "" {
-        errMsg := map[string]string {"error": "Invalid Post ID"}
         log.Printf("Could not get post with sk %s\n", models.NewPostRecordSK(postID))
-        return WriteJSON(w, http.StatusNotFound, errMsg)
+        return PageNotFoundError(w)
     }
 
     if post.UserID != currentUserID {
-        errMsg := map[string]string {"error": "Unauthorized"}
         log.Printf("%s is trying to delete post by %s", post.ID, currentUserID)
-        return WriteJSON(w, http.StatusUnauthorized, errMsg)
+        return UnauthorizedError(w)
     }
 
     err := c.store.DeletePost(models.NewPostRecordPK(post.UserID), models.NewPostRecordSK(post.ID))
@@ -195,6 +249,9 @@ func (c *Controller) DeletePost(w http.ResponseWriter, r *http.Request) error {
         return InternalServerError(w)
     }
 
-    return nil
+    successMsg := map[string]string {
+        "message": "Post deleted successfully",
+    }
+    return WriteJSON(w, http.StatusOK, successMsg)
 }
 

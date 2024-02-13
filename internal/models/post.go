@@ -26,6 +26,11 @@ type PostDto struct {
     Files       map[string]string
 }
 
+type DeleteFilesDto struct {
+    UserID string
+    Files  map[string]string
+}
+
 func NewPost(postData PostDto, userID string) Post {
     now, _ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 

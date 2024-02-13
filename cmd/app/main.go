@@ -24,11 +24,11 @@ func main() {
     db := database.InitDB(timeout)
     s3 := blob.InitBlob(env.S3_BUCKET, timeout)
     store := storage.NewSnippetStore(db, database.SnippetTableName, s3)
-    controller := controller.NewController(store, env.JWT_SECRET, env.PRODUCTION)
+    controller := controller.NewController(store, env.JWT_SECRET, env.COOKIE_HASH_KEY, env.COOKIE_BLOCK_KEY, env.PRODUCTION)
     router := router.NewRouter(controller)
 
 	corsHandler := handlers.CORS(
-        handlers.AllowedOrigins([]string{"*"}),
+        handlers.AllowedOrigins([]string{"http://localhost:3000"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"}),
 		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
 		handlers.AllowCredentials(),
