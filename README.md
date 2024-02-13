@@ -1,6 +1,6 @@
 # Snippet
 
-Gist Clone: Platform to share code snippets easily with others. 
+Platform to share code snippets easily with others. (Gist or Pastebin Clone)
 
 ## Table of Contents 
 
@@ -22,24 +22,28 @@ Note: In order to test out if this is working as expected you can `curl http://l
 <a id="features"></a>
 ## Features
 
-The core idea for the platform, is to allow users to collaberate on short stories. Users can either write a prompt for a short story, or write a story on a given prompt.
+The core idea for the platform, is to allow users to create repos with up to 5 code snippets. Users can then share the snippets to other people.
 
-- [ ] Authentication System - allow users to register/login/logout
-- [ ] Prompts - allow users to do crud operations on prompts
-- [ ] Stories - allow users to do crud operations on stories
-- [ ] Profile - allow users to view posts on one person
-- [ ] Follow System - allow users to follow other users to get prompts/stories in their feed
+- [X] Authentication System: Users are able register/login/logout
+- [X] Built-in editor: Snippet uses Monaco editor, which is the same one used in VS Code, enabling powerful editing capabilities
+- [X] Code File Storage: Snippet uses S3 to store code files in a robust and scalable manner
+- [X] CRUD Fuctionalities for repos: Users can create, read, update and delete repos
+- [X] Scalable Database: Snippet uses DynamoDB with a single table design for optimized reterival and storage of data
+
+Additional possible features:
+- [ ] Rate limiting using Redis or AWS Elastic cache
+- [ ] Comments on repos like with Gist
+- [ ] Ability for users to reset the password
 
 <a id="architucture"></a>
 ## Architucture
 
-**Technologies Used or Will Use:**
+**Technologies Used:**
 - Go and Mux Router (Backend)
 - DynamoDB(Database)
-- ElastiCache (Rate Limiting + Cache)
-- Ozzo (Input validation)
 - AWS S3 (Storage)
 - TailwindCSS (Styling)
+- NextJS (Frontend)
 
 <a id="license"></a>
 ## License
