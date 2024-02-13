@@ -94,58 +94,56 @@ function Read({ params }: { params: { id: string } }) {
     }
 
     return (
-        <>
-            <div className='sm:px-5 md:px-12 lg:px-40'>
-                <div className='p-2 flex justify-between'>
-                    <div className='hover:cursor-pointer flex'>
-                        <p className="text-2xl px-2">{repo?.name}</p>
-                    </div>
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <MoreVertical />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem
-                                onClick={() => router.push(`/repo/update/${repo?.id}`)}
-                            >
-                                <Pencil />
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => setShowModal(true)}
-                            >
-                                <Trash2 />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+        <div className='sm:px-5 md:px-12 lg:px-40'>
+            <div className='p-2 flex justify-between'>
+                <div className='hover:cursor-pointer flex'>
+                    <p className="text-2xl px-2">{repo?.name}</p>
                 </div>
 
-                { files.map((file, index) => {
-                    return (
-                        <SingularFile
-                            key={index}
-                            filename={file.name}
-                            editorValue={fileContent[file.name]}
-                            index={index}
-                            deleteable={false}
-                            editable={false}
-                            setFilename={() => {}}
-                            setEditorRef={updateEditorRef}
-                            deleteFile={() => {}}
-                        />
-                    );
-                })}
-
-                { showModal && 
-                    <Modal 
-                        closeModal={() => setShowModal(false)}
-                        onConfirm={ async () => { await deleteRepo(); } }
-                    />
-                }
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <MoreVertical />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem
+                            onClick={() => router.push(`/repo/update/${repo?.id}`)}
+                        >
+                            <Pencil />
+                            Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => setShowModal(true)}
+                        >
+                            <Trash2 />
+                            Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
-        </>
+
+            { files.map((file, index) => {
+                return (
+                    <SingularFile
+                        key={index}
+                        filename={file.name}
+                        editorValue={fileContent[file.name]}
+                        index={index}
+                        deleteable={false}
+                        editable={false}
+                        setFilename={() => {}}
+                        setEditorRef={updateEditorRef}
+                        deleteFile={() => {}}
+                    />
+                );
+            })}
+
+            { showModal && 
+                <Modal 
+                    closeModal={() => setShowModal(false)}
+                    onConfirm={ async () => { await deleteRepo(); } }
+                />
+            }
+        </div>
     );
 }
 

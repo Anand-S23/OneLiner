@@ -4,9 +4,7 @@ import CreateForm from "@/components/repo/CreateForm";
 
 function Create() {
     return (
-        <>
-            <CreateForm />
-        </>
+        <CreateForm />
     );
 }
 

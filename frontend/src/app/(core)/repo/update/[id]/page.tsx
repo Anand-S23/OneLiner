@@ -4,11 +4,9 @@ import UpdateForm from "@/components/repo/UpdateForm";
 
 function Update({ params }: { params: { id: string } }) {
     return (
-        <>
-            <UpdateForm 
-                repoID={params.id}
-            />
-        </>
+        <UpdateForm 
+            repoID={params.id}
+        />
     );
 }
 
