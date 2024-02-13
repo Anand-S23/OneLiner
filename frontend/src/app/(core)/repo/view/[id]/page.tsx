@@ -1,6 +1,6 @@
 'use client';
 
-import { DELETE_REPO_ENDPOINT, GET_FILES_ENDPOINT, READ_REPO_ENDPOINT } from "@/lib/consts";
+import { AUTH_USER_ENDPOINT, DELETE_REPO_ENDPOINT, GET_FILES_ENDPOINT, READ_REPO_ENDPOINT } from "@/lib/consts";
 import { FileDetails, FilesType, Post } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { MutableRefObject, useEffect, useState } from "react";
@@ -21,6 +21,7 @@ function Read({ params }: { params: { id: string } }) {
     const [fileContent, setFileContent] = useState<FilesType>({});
     const [files, setFiles] = useState<Array<FileDetails>>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
+    const [isOwner, setIsOwner] = useState<boolean>(false);
 
     const deleteRepo = async () => {
         const response = await fetch(DELETE_REPO_ENDPOINT + params.id, {
@@ -43,6 +44,15 @@ function Read({ params }: { params: { id: string } }) {
 
     useEffect(() => {
         const getPost = async () => {
+            const responseUserID = await fetch(AUTH_USER_ENDPOINT, {
+                method: "GET",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                credentials: 'include'
+            });
+
+            const userID: string = await responseUserID.json() ?? '';
+
             const response = await fetch(READ_REPO_ENDPOINT + params.id, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
@@ -55,6 +65,7 @@ function Read({ params }: { params: { id: string } }) {
 
             const data: Post = await response.json() as Post;
             setRepo(data);
+            setIsOwner(userID === data.userID);
 
             const getFilesResponse = await fetch(GET_FILES_ENDPOINT, {
                 method: "POST",
@@ -100,25 +111,29 @@ function Read({ params }: { params: { id: string } }) {
                     <p className="text-2xl px-2">{repo?.name}</p>
                 </div>
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <MoreVertical />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem
-                            onClick={() => router.push(`/repo/update/${repo?.id}`)}
-                        >
-                            <Pencil className="p-1"/>
-                            Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={() => setShowModal(true)}
-                        >
-                            <Trash2 className="p-1"/>
-                            Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div>
+                    { isOwner &&
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <MoreVertical />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem
+                                    onClick={() => router.push(`/repo/update/${repo?.id}`)}
+                                >
+                                    <Pencil className="p-1"/>
+                                    Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setShowModal(true)}
+                                >
+                                    <Trash2 className="p-1"/>
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    }
+                </div>
             </div>
 
             { files.map((file, index) => {

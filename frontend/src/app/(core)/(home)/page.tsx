@@ -93,6 +93,12 @@ export default function Home() {
                     </div>
                 </div>
 
+                { posts.length === 0 &&
+                    <p className='text-center text-lg'>
+                        No posts created yet.
+                    </p>
+                }
+
                 { posts.map(post => {
                     return (
                         <div key={post.id}>
