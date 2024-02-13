@@ -25,6 +25,15 @@ func (store *SnippetStore) UploadFileToS3(file io.Reader, key string) error {
     return err
 }
 
+func (store *SnippetStore) DeleteFileFromS3(fileID string) error {
+    _, err := store.s3.Client.DeleteObject(context.TODO(), &s3.DeleteObjectInput {
+		Bucket: store.s3.BucketName,
+		Key:    aws.String(fileID),
+	})
+
+    return err
+}
+
 func (store *SnippetStore) GetFileContentFromS3(fileID string) (string, error) {
     result, err := store.s3.Client.GetObject(context.TODO(), &s3.GetObjectInput{
         Bucket: store.s3.BucketName,

@@ -89,6 +89,34 @@ func (c *Controller) GetFiles(w http.ResponseWriter, r *http.Request) error {
     return WriteJSON(w, http.StatusOK, outputData)
 }
 
+func (c *Controller) DeleteFiles(w http.ResponseWriter, r *http.Request) error {
+    currentUserID := r.Context().Value("user_id").(string)
+
+    var inputData models.DeleteFilesDto
+    err := json.NewDecoder(r.Body).Decode(&inputData)
+    if err != nil {
+        return BadRequestError(w, "Could not parse post data")
+    }
+
+    if currentUserID != inputData.UserID {
+        return UnauthorizedError(w)
+    }
+
+    for _, fileID := range inputData.Files {
+        err = c.store.DeleteFileFromS3(fileID)
+        if err != nil {
+            log.Printf("Could not delete file %s: %s", fileID, err)
+        }
+    }
+
+    successMsg := map[string]string {
+        "message": "Files deleted potentially removed from blob storage",
+    }
+    log.Println("Files deleted potentially removed from blob storage")
+    return WriteJSON(w, http.StatusOK, successMsg)
+}
+
+
 func (c *Controller) GetPostsForCurrentUser(w http.ResponseWriter, r *http.Request) error {
     currentUserID := r.Context().Value("user_id").(string)
     posts, err := c.store.GetPostsByUser(models.NewPostRecordPK(currentUserID))

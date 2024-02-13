@@ -20,6 +20,7 @@ func NewRouter(c *controller.Controller) *mux.Router {
 
     // S3
     router.HandleFunc("/upload", middleware.Authentication(HandleFunc(c.UploadFiles), c.JwtSecretKey, c.CookieSecret)).Methods("POST")
+    router.HandleFunc("/delete", middleware.Authentication(HandleFunc(c.DeleteFiles), c.JwtSecretKey, c.CookieSecret)).Methods("POST")
     router.HandleFunc("/getFiles", HandleFunc(c.GetFiles)).Methods("POST")
 
     // Post

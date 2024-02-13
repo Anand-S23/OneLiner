@@ -6,7 +6,7 @@ import * as monaco from 'monaco-editor';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Plus } from 'lucide-react';
-import { GET_FILES_ENDPOINT, READ_REPO_ENDPOINT, UPDATE_REPO_ENDPOINT, UPLOAD_FILES_ENDPOINT } from '@/lib/consts';
+import { DELETE_FILES_ENDPOINT, GET_FILES_ENDPOINT, READ_REPO_ENDPOINT, UPDATE_REPO_ENDPOINT, UPLOAD_FILES_ENDPOINT } from '@/lib/consts';
 import { CreateRepoSchema, FileDetails, FilesType, Post, TCreateRepoSchema } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -55,6 +55,7 @@ const UpdateForm = (props: UpdateFormProps) => {
             const data: Post = await response.json() as Post;
             setValue('name', data.name);
             setValue('description', data.description);
+            setRepo(data);
 
             const getFilesResponse = await fetch(GET_FILES_ENDPOINT, {
                 method: "POST",
@@ -183,8 +184,6 @@ const UpdateForm = (props: UpdateFormProps) => {
             credentials: 'include'
         });
 
-        const updateResponseData = await updateResponse.json();
-
         if (!updateResponse.ok) {
             toast({
                 title: "Uh oh! Something went wrong.",
@@ -193,6 +192,19 @@ const UpdateForm = (props: UpdateFormProps) => {
 
             return;
         }
+
+        const deleteData = {
+            userID: repo?.userID,
+            files: repo?.files
+        }
+
+        await fetch(DELETE_FILES_ENDPOINT, {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify(deleteData),
+            headers: { "Content-Type": "application/json" },
+            credentials: 'include'
+        });
 
         // TODO: Delete old files
         router.push(`/repo/view/${props.repoID}`);
