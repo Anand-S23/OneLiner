@@ -108,13 +108,13 @@ function Read({ params }: { params: { id: string } }) {
                         <DropdownMenuItem
                             onClick={() => router.push(`/repo/update/${repo?.id}`)}
                         >
-                            <Pencil />
+                            <Pencil className="p-1"/>
                             Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => setShowModal(true)}
                         >
-                            <Trash2 />
+                            <Trash2 className="p-1"/>
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>

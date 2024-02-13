@@ -24,7 +24,7 @@ const RepoCard = (props: RepoCardProps) => {
                         onClick={() => router.push(`/repo/view/${props.repoID}`)}
                     >
                         <Code className="mt-1"/>
-                        <p className="text-blue-500 text-2xl px-2">{props.name}</p>
+                        <p className="text-blue-500 hover:text-blue-400 text-2xl px-2">{props.name}</p>
                     </div>
 
                     <DropdownMenu>
@@ -35,13 +35,13 @@ const RepoCard = (props: RepoCardProps) => {
                             <DropdownMenuItem
                                 onClick={() => router.push(`/repo/update/${props.repoID}`)}
                             >
-                                <Pencil />
+                                <Pencil className="p-1" />
                                 Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onClick={() => props.deleteRepo(props.repoID)}
                             >
-                                <Trash2 />
+                                <Trash2 className="p-1" />
                                 Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>

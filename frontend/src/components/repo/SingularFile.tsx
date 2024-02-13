@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { ChangeEvent, MutableRefObject, useEffect, useRef, useState } from 'react';
 import { Copy, Download, Trash2 } from 'lucide-react';
 import { getFileExtension } from '@/lib/utils';
-import { copyFile } from 'fs';
 import { useToast } from '../ui/use-toast';
 
 const getOptions = (editable: boolean) => {
@@ -136,12 +135,19 @@ const SingularFile = (props: SingularFileProps) => {
             <div>
                 { props.editable &&
                     <div className='flex justify-between'>
-                        <Input 
-                            type="text" id="filename" name="filename" placeholder="Filename with extenstion"
-                            className="p-4 w-full focus-visible:ring-offset-0"
-                            value={props.filename}
-                            onChange={(e) => handleFilenameUpdate(e)}
-                        />
+                        { props.filename === '' ? (
+                            <Input 
+                                type="text" id="filename" name="filename" placeholder="Filename with extenstion"
+                                className="p-4 w-full focus-visible:ring-offset-0"
+                                onChange={(e) => handleFilenameUpdate(e)}
+                            />) : (
+                            <Input 
+                                type="text" id="filename" name="filename" placeholder="Filename with extenstion"
+                                value={props.filename}
+                                className="p-4 w-full focus-visible:ring-offset-0"
+                                onChange={(e) => handleFilenameUpdate(e)}
+                            />
+                        )}
 
                         { props.deleteable &&
                             <Button 

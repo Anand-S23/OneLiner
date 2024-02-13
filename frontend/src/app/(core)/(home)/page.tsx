@@ -84,8 +84,8 @@ export default function Home() {
     return (
         <>
             <div className="p-2 px-8 md:px-16 lg:px-40 grid grid-col-1 md:grid-col-2 lg:grid-col-3 gap-4">
-                <div className='hover:cursor-pointer' onClick={() => router.push('/repo/create')}>
-                    <div className='w-full flex justify-around align-middle border border-black rounded-sm'>
+                <div className='hover:cursor-pointer mt-2' onClick={() => router.push('/repo/create')}>
+                    <div className='w-full flex justify-around align-middle border border-black rounded-sm hover:border-blue-500'>
                         <div className='flex my-5'>
                             <Plus className='mt-1'/>
                             <h2 className='text-2xl'>Create Repo</h2>
