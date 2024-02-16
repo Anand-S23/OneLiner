@@ -1,4 +1,4 @@
-const BACKEND_URI = "http://localhost:5050";
+const BACKEND_URI = "https://snippet.metalmask.dev";
 
 // Auth Endpoints
 export const LOGIN_ENDPOINT = BACKEND_URI + "/login";
