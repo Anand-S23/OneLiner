@@ -11,3 +11,4 @@ function Update({ params }: { params: { id: string } }) {
 }
 
 export default Update;
+export const runtime = 'edge';

@@ -1,6 +1,8 @@
 'use client';
 
-import CreateForm from "@/components/repo/CreateForm";
+import dynamic from "next/dynamic";
+
+const CreateForm = dynamic(() => import("@/components/repo/CreateForm"), {ssr: false})
 
 function Create() {
     return (

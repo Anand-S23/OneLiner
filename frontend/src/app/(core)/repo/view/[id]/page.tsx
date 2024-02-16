@@ -176,3 +176,4 @@ function Read({ params }: { params: { id: string } }) {
 }
 
 export default Read;
+export const runtime = 'edge';
