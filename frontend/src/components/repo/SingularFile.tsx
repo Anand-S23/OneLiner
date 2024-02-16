@@ -1,5 +1,3 @@
-"use client";
-
 import Editor, { Monaco } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { Button } from "@/components/ui/button";
