@@ -41,7 +41,7 @@ export default function Home() {
                 return;
             }
 
-            const data: Array<Post> = await response.json() as Array<Post>;
+            const data: Array<Post> = await response.json() as Array<Post> ?? [];
             setPosts(data as Array<Post>);
             setIsLoaded(true);
         }
